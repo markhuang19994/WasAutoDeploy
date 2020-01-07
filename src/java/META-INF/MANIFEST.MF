@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Class-Path: groovy-ant.jar asm-commons.jar junit4.jar groovy-testng.ja
+ r ivy.jar bsf.jar groovy-servlet.jar groovy-test.jar hamcrest-core.ja
+ r groovy-groovydoc.jar ant.jar commons-logging.jar groovy-sql.jar ant
+ -antlr.jar asm.jar groovy-swing.jar jansi.jar testng.jar servlet-api-
+ 3.1.jar asm-analysis.jar ant-junit.jar groovy-jsr223.jar groovy-jmx.j
+ ar asm-tree.jar groovy-console.jar jsp-api-2.3.jar groovy-2.4.16.jar 
+ groovy-xml.jar ant-launcher.jar qdox.jar xstream.jar jsr166y.jar comm
+ ons-cli.jar antlr.jar groovy-nio.jar jcommander.jar asm-util.jar groo
+ vy-json.jar groovy-groovysh.jar groovy-docgenerator.jar groovy-bsf.ja
+ r gpars.jar groovy-templates.jar jline2.jar
+Main-Class: com.Main
+
