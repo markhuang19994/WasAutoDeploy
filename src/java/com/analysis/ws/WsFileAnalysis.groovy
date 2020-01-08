@@ -23,7 +23,7 @@ class WsFileAnalysis {
         def lastTaskLine = '?'
         def count = 1
         for (line in lines) {
-            def pattern = Pattern.compile('^([a-z0-9A-Z]+?)[ \t]+?([\\s\\S]*)$')
+            def pattern = Pattern.compile('^([a-z0-9A-Z_]+?)[ \t]+?([\\s\\S]*)$')
             def matcher = pattern.matcher(line)
             if (matcher.find()) {
                 if (nowTask != null) {
@@ -38,7 +38,7 @@ class WsFileAnalysis {
                     temp << line
                 }
             }
-            count ++
+            count++
         }
         parseTask(nowTask, temp, wsFileInfo, tasks, lastTaskLine)
 
@@ -50,7 +50,14 @@ class WsFileAnalysis {
             if (nowTask == 'NAME') {
                 wsFileInfo.name = temp.join('\n')
             } else if (nowTask == 'SSH_URL') {
-                wsFileInfo.sshUrl = temp.join('\n')
+                def sshUrl = temp.join('\n')
+                def port = null
+                if (sshUrl.contains(':')) {
+                    def sp = sshUrl.split(':')
+                    sshUrl = sp[0]
+                    port = sp[1]
+                }
+                wsFileInfo.sshUrl = new SshUrl(url: sshUrl, port: port)
             } else if (nowTask == 'SCP' || nowTask == 'RUN') {
                 tasks << new Task(type: TaskType.valueOf(nowTask), content: temp.join('\n'))
             } else {
@@ -59,10 +66,23 @@ class WsFileAnalysis {
         }
     }
 
-    static getPattern(String title) {
-        def pattern = '^$title\\S+?([\\s\\S]*)$'
-        pattern.replace('$title', title)
+    static parseScp(String scp) {
+        def attrs = scp.split(':')
+        def result = [:]
+
+        try {
+            result['target'] = attrs[0]
+            result['dest'] = attrs[1]
+            result['user'] = attrs[2]
+            result['owner'] = attrs[3]
+            result['permission'] = attrs[4]
+        } catch (ArrayIndexOutOfBoundsException ignore) {
+
+        }
+        result
     }
+
+
 }
 
 

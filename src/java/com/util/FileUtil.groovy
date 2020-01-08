@@ -91,6 +91,6 @@ final class FileUtil {
     }
 
     static File generateTempFile() {
-        new File(TEMP_DIR, UUID.randomUUID().toString().replace('_', ''))
+        new File(TEMP_DIR, UUID.randomUUID().toString().replace('-', ''))
     }
 }

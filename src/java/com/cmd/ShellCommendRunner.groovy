@@ -37,7 +37,7 @@ class ShellCommendRunner extends CommendRunner {
         println "\033[34mExit code:$exitCode\n\033[0m"
 
         if (exitCode != 0 && printDebugMsg) {
-            println "\033[31m[Debug cmd]\n$execFile.text\033[0m"
+            println "\033[31m[Debug cmd]\n$execFile.text\033[0m\n"
         }
         execFile.deleteOnExit()
 

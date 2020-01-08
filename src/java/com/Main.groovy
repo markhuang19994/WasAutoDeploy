@@ -1,10 +1,14 @@
 package com
 
+import com.analysis.ws.TaskType
+import com.analysis.ws.WsFileAnalysis
+import com.analysis.ws.WsFileInfo
 import com.app.ScpHelper
 import com.cmd.CommendRunner
 import com.cmd.CommendRunnerFactory
 import com.cmd.condition.CmdCondition
 import com.cmd.condition.ConditionOutput
+import com.cmd.ssh.SshCommandRunner
 import com.project.Project
 import com.util.FileUtil
 
@@ -23,7 +27,8 @@ class Main {
 
     static void main(String[] args) {
         init(args)
-        installOnLinuxBySsh()
+        execWsFile()
+//        installOnLinuxBySsh()
     }
 
     static init(String[] args) {
@@ -42,6 +47,48 @@ class Main {
         def properties2 = new Properties()
         properties2.load(new FileInputStream(projectConf))
         project = new Project(new HashMap<>(properties2))
+    }
+
+    static execWsFile() {
+        List<String> extraPath = (prop['cmd.extra.path'] as String)?.split(',')?.toList() ?: []
+        def cr = CommendRunnerFactory.getCommendRunner(null, extraPath, null, null)
+
+        def execWsFiles = (project.wsFiles ?: '').toString().split('\\|')
+        if (execWsFiles.size() == 0) return
+
+        File wsDir = new File(new File(mainArgs.projectConfPath).parentFile, 'ws')
+        if (!wsDir.exists()) {
+            throw new RuntimeException('ws file dir not found: ' + wsDir.absolutePath)
+        }
+
+        List<WsFileInfo> wsFileInfos = []
+
+        for (execWsFile in execWsFiles) {
+            File wsFile = new File(wsDir, execWsFile)
+            if (!wsFile.exists()) {
+                throw new RuntimeException('ws file not found: ' + wsFile.absolutePath)
+            }
+
+            wsFileInfos << WsFileAnalysis.parseWsFile(wsFile)
+        }
+
+        for (wsFileInfo in wsFileInfos) {
+            println "Exec:$wsFileInfo.name"
+
+            def sshUrl = wsFileInfo.sshUrl
+            def scpH = new ScpHelper(cr, sshUrl.url, sshUrl.port)
+
+            for (task in wsFileInfo.tasks) {
+                if (task.type == TaskType.RUN) {
+                    def sshCmdRunner = new SshCommandRunner(cr, sshUrl.url, sshUrl.port)
+                    sshCmdRunner.runCommend(task.content)
+                } else if (task.type == TaskType.SCP) {
+                    def attrs = WsFileAnalysis.parseScp(task.content)
+                    scpH.cpWithAutoCreateDir(attrs['target'], attrs['dest'], attrs['user'], attrs['owner'], attrs['permission'])
+                }
+            }
+            println "$wsFileInfo.name running success."
+        }
     }
 
     static installOnLinuxBySsh() {
@@ -78,7 +125,7 @@ class Main {
             @Override
             boolean test(List<String> consoleLines) {
                 if (consoleLines.size() < 1) return false
-                return consoleLines[consoleLines.size() -1].contains('Enter file in which')
+                return consoleLines[consoleLines.size() - 1].contains('Enter file in which')
             }
         })
         def co2 = new ConditionOutput('y\n')
@@ -86,7 +133,7 @@ class Main {
             @Override
             boolean test(List<String> consoleLines) {
                 if (consoleLines.size() < 1) return false
-                return consoleLines[consoleLines.size() -1].contains('Overwrite (y/n)')
+                return consoleLines[consoleLines.size() - 1].contains('Overwrite (y/n)')
             }
         })
         cr.runCommend('ssh-keygen', true, null, [co, co2])

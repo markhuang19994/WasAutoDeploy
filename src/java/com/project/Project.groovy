@@ -14,6 +14,7 @@ class Project {
     String linuxDPath
     String wsAppName
     String wsNodeName
+    String wsFiles
 
     Project(Map properties) {
         name = properties['project.name']
@@ -21,6 +22,7 @@ class Project {
         linuxDPath = properties['linux.d.path']
         wsAppName = properties['ws.app.name']
         wsNodeName = properties['ws.node.name']
+        wsFiles = properties['ws.files']
     }
 
 }

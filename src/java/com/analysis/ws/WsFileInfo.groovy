@@ -2,7 +2,7 @@ package com.analysis.ws
 
 class WsFileInfo {
     String name
-    String sshUrl
+    SshUrl sshUrl
     List<Task> tasks
 
 }
