@@ -45,7 +45,8 @@ class ScpHelper {
                 : destFile.parentFile.absolutePath
 
         sshCmdRunner.runCommend(
-                "[ ! -d $outerDirPath ] && mkdir -p $outerDirPath && " +
+                "[ ! -d $outerDirPath ] && mkdir -p $outerDirPath" +
+                        "${ownModCmd == '' ? '' : ' && '}" +
                         ownModCmd.replace('@dest', outerDirPath) +
                         ' || true'
         )
