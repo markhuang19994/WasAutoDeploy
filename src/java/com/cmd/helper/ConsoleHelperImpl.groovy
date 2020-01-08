@@ -37,7 +37,7 @@ class ConsoleHelperImpl implements ConsoleHelper{
                         new InputStreamReader(process.getInputStream(), CONSOLE_ENCODING))
                 outputWriter =
                         new BufferedWriter(new OutputStreamWriter(process.getOutputStream()))
-                result = readSuccessConsoleAndWriteOutput(successReader, outputWriter, conditionOutputList)
+                result = readSuccessConsoleWithoutLineSpAndWriteOutput(successReader, outputWriter, conditionOutputList)
                 successReader.close()
             } catch (Exception e) {
                 e.printStackTrace()
