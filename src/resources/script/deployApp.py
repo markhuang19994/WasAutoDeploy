@@ -15,6 +15,7 @@ contextPath = prop.get('ws.context.path')
 virtualHost = prop.get('ws.virtual.host')
 appName = prop.get('ws.app.name')
 warPath = prop.get('linux.war.path')
+classloaderMode = prop.get('ws.classloader.mode')
 
 print('serverName is %s' % (serverName))
 print('nodeName is %s' % (nodeName))
@@ -68,14 +69,7 @@ def installApp(cluster, appName, contextPath, virtualHost, warPath):
     options.append('-usedefaultbindings')
     AdminApp.install(warPath, options)
     AdminConfig.save()
-    syncClusterNodes(cluster)
-
-def syncClusterNodes(clusterName):
-    nodeNames = app_util.getNodesInCluster(clusterName)
-    for nodeName in nodeNames:
-        sync = AdminControl.completeObjectName('type=NodeSync,node=%s,*' % (nodeName))
-        AdminControl.invoke(sync, 'sync')
-        print 'sync %s success.' % (nodeName)
+    app_util.syncClusterNodes(cluster)
 
 def startApp(appManager, appName, process):
     AdminControl.invoke(appManager, 'startApplication', appName)
@@ -106,6 +100,9 @@ def main():
 
         updateApp(appName, warPath)
 
+        if classloaderMode is not None:
+            app_util.setClassLoaderMode(appName, classloaderMode)
+
         for appInstance in appInstances:
             attrMap = app_util.getAppAttributes(appInstance)
             process = attrMap['process']
@@ -116,6 +113,8 @@ def main():
             startApp(appManager, appName, process)
     else:
         installApp(cluster, appName, contextPath, virtualHost, warPath)
+        if classloaderMode is not None:
+            app_util.setClassLoaderMode(appName, classloaderMode)
         processes = app_util.getServersInCluster(cluster)
         print 'find processes in cluster%s: %s' % (cluster, processes)
         for process in processes:

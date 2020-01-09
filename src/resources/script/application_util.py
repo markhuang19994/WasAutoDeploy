@@ -60,3 +60,20 @@ def getServersInCluster(clusterName):
 
 def getNodesInCluster(clusterName):
     return getServerNodesInCluster(clusterName)[1]
+
+def syncClusterNodes(clusterName):
+    nodeNames = app_util.getNodesInCluster(clusterName)
+    for nodeName in nodeNames:
+        sync = AdminControl.completeObjectName('type=NodeSync,node=%s,*' % (nodeName))
+        AdminControl.invoke(sync, 'sync')
+        print 'sync %s success.' % (nodeName)
+
+def setClassLoaderMode(appName, mode):
+    dep = AdminConfig.getid('/Deployment:%s/' % appName)
+    depObject = AdminConfig.showAttribute(dep, 'deployedObject')
+    classldr = AdminConfig.showAttribute(depObject, 'classloader')
+    AdminConfig.modify(classldr, [['mode', mode]])
+    AdminConfig.save()
+    print 'change classloader mode success.'
+    print AdminConfig.showall(classldr)
+

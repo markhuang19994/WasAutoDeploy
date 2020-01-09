@@ -124,6 +124,8 @@ class Main {
 
     static genSshKey(CommendRunner cr) {
         //cat C:/Windows/system32/config/systemprofile/.ssh/id_rsa.pub | ssh root@192.168.36.91 "cat >> ~/.ssh/authorized_keys"
+        //git bash ssh-copy-id root@192.168.36.92
+        //echo StrictHostKeyChecking no > C:/Windows/system32/config/systemprofile/.ssh/config
         def co = new ConditionOutput('\n')
         co.addCmdCondition(new CmdCondition() {
             @Override
