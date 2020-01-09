@@ -5,7 +5,7 @@ from java.io import FileInputStream
 from java.util import Properties
 
 prop = Properties()
-prop.load(FileInputStream(sys.argv[0] + '/config_proj.properties'))
+prop.load(FileInputStream(sys.argv[0] + '/config_app.properties'))
 
 cellName = prop.get('ws.cell.name')
 serverName = prop.get('ws.server.name')
