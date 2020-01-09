@@ -62,7 +62,7 @@ def getNodesInCluster(clusterName):
     return getServerNodesInCluster(clusterName)[1]
 
 def syncClusterNodes(clusterName):
-    nodeNames = app_util.getNodesInCluster(clusterName)
+    nodeNames = getNodesInCluster(clusterName)
     for nodeName in nodeNames:
         sync = AdminControl.completeObjectName('type=NodeSync,node=%s,*' % (nodeName))
         AdminControl.invoke(sync, 'sync')
