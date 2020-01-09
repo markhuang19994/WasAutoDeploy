@@ -60,20 +60,23 @@ class WsFileAnalysis {
     }
 
     static parseScp(String scp) {
-        def attrs = scp.split(':')
+        def sp = scp.split('!')
         def result = [:]
 
         try {
-            def targetDest = attrs[0]
+            def targetDest = sp[0]
             def tds = targetDest.split('=>')
             result['target'] = tds[0].trim()
             result['dest'] = tds[1].trim()
+
+            def attrs = sp[1].split(':')
             result['user'] = attrs[1]
             result['owner'] = attrs[2]
             result['permission'] = attrs[3]
         } catch (ArrayIndexOutOfBoundsException ignore) {
 
         }
+        println 'result >>>' + result
         result
     }
 
