@@ -1,5 +1,5 @@
 package com.analysis.ws
 
 enum TaskType {
-    SCP, RUN, NAME, SSH_URL
+    NAME, SSH_URL, USER, SCP, RUN
 }

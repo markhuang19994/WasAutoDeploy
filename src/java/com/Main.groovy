@@ -1,5 +1,6 @@
 package com
 
+import com.analysis.ws.SshUrl
 import com.analysis.ws.TaskType
 import com.analysis.ws.WsFileAnalysis
 import com.analysis.ws.WsFileInfo
@@ -28,7 +29,8 @@ class Main {
     static void main(String[] args) {
         init(args)
         execWsFile()
-//        installOnLinuxBySsh()
+        println '\nDeploy app on websphere\n'
+        installOnLinuxBySsh()
     }
 
     static init(String[] args) {
@@ -76,15 +78,17 @@ class Main {
             println "Exec:$wsFileInfo.name"
 
             def sshUrl = wsFileInfo.sshUrl
-            def scpH = new ScpHelper(cr, sshUrl.url, sshUrl.port)
+            def sshCmdRunner = new SshCommandRunner(cr, sshUrl)
+            def scpH = new ScpHelper(sshCmdRunner, sshUrl)
 
             for (task in wsFileInfo.tasks) {
                 if (task.type == TaskType.RUN) {
-                    def sshCmdRunner = new SshCommandRunner(cr, sshUrl.url, sshUrl.port)
                     sshCmdRunner.runCommend(task.content)
                 } else if (task.type == TaskType.SCP) {
                     def attrs = WsFileAnalysis.parseScp(task.content)
                     scpH.cpWithAutoCreateDir(attrs['target'], attrs['dest'], attrs['user'], attrs['owner'], attrs['permission'])
+                } else if (task.type == TaskType.USER) {
+                    sshUrl.user =  task.content
                 }
             }
             println "$wsFileInfo.name running success."
@@ -92,7 +96,6 @@ class Main {
     }
 
     static installOnLinuxBySsh() {
-        def ssh = prop['ssh.url']
         def deployScript = FileUtil.getResource('/script/deployApp.py')
         def utilScript = FileUtil.getResource('/script/application_util.py')
         def linuxConfigPath = prop['linux.config.path']
@@ -100,15 +103,17 @@ class Main {
         List<String> extraPath = (prop['cmd.extra.path'] as String)?.split(',')?.toList() ?: []
         def cr = CommendRunnerFactory.getCommendRunner(null, extraPath, null, null)
 
-        def scpH = new ScpHelper(cr, ssh as String)
+        def sshUrl = SshUrl.valueOf(prop['ssh.url'] as String)
+        def scr = new SshCommandRunner(cr, sshUrl)
+        def scpH = new ScpHelper(scr, sshUrl)
         scpH.cpWithAutoCreateDir(mainArgs.dPath + "/*", project.linuxDPath)
         scpH.cpWithAutoCreateDir(mainArgs.warPath, project.linuxWarPath)
         scpH.cpWithAutoCreateDir(mainArgs.projectConfPath, linuxConfigPath)
         scpH.cpWithAutoCreateDir(deployScript.absolutePath, linuxScriptPath)
         scpH.cpWithAutoCreateDir(utilScript.absolutePath, linuxScriptPath)
 
-        cr.runCommend(
-                "ssh ${ssh} ${prop['linux.wsadmin.path']} " +
+        scr.runCommend(
+                "${prop['linux.wsadmin.path']} " +
                         "-lang jython " +
                         "-javaoption \"-Dpython.path=${linuxScriptPath}\" " +
                         "-conntype SOAP " +

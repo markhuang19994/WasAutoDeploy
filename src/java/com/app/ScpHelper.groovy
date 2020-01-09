@@ -1,6 +1,6 @@
 package com.app
 
-import com.cmd.CommendRunner
+import com.analysis.ws.SshUrl
 import com.cmd.ssh.SshCommandRunner
 
 /**
@@ -12,19 +12,17 @@ import com.cmd.ssh.SshCommandRunner
  */
 class ScpHelper {
 
-    CommendRunner cr
-    String ssh = ''
-    String port = ''
+    SshCommandRunner scr
 
-    ScpHelper(CommendRunner cr, String ssh, String port = '22') {
-        this.cr = cr
-        this.ssh = ssh
-        this.port = port
+    SshUrl sshUrl
+
+    ScpHelper(SshCommandRunner scr, SshUrl sshUrl) {
+        this.scr = scr
+        this.sshUrl = sshUrl
     }
 
     void cpWithAutoCreateDir(target, dest, user = null, owner = null, permission = null) {
-        def sshCmdRunner = new SshCommandRunner(cr, ssh, port)
-        def scpCmd = "scp -P ${port}"
+        def scpCmd = "scp -P ${sshUrl.port}"
 
         def targetFile = new File(target)
         def chownMod = []
@@ -41,19 +39,19 @@ class ScpHelper {
 
         def destFile = new File(dest)
         def outerDirPath = targetFile.isDirectory()
-                ? destFile.absolutePath
-                : destFile.parentFile.absolutePath
+                ? destFile.path
+                : destFile.parentFile.path
 
-        sshCmdRunner.runCommend(
+        scr.runCommend(
                 "[ ! -d $outerDirPath ] && mkdir -p $outerDirPath" +
                         "${ownModCmd == '' ? '' : ' && '}" +
                         ownModCmd.replace('@dest', outerDirPath) +
                         ' || true'
         )
 
-        cr.runCommend("${scpCmd} -r ${target} ${ssh}:${dest}")
+        scr.commandRunner.runCommend("${scpCmd} -r ${target} ${sshUrl.fullUrl()}:${dest}")
         if (ownModCmd != '') {
-            sshCmdRunner.runCommend(" ${ownModCmd.replace('@dest', dest)}")
+            scr.runCommend(" ${ownModCmd.replace('@dest', dest)}")
         }
     }
 }
