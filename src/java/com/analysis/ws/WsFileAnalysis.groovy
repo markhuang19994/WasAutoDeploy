@@ -70,13 +70,12 @@ class WsFileAnalysis {
             result['dest'] = tds[1].trim()
 
             def attrs = sp[1].split(':')
-            result['user'] = attrs[1]
-            result['owner'] = attrs[2]
-            result['permission'] = attrs[3]
+            result['user'] = attrs[0]
+            result['owner'] = attrs[1]
+            result['permission'] = attrs[2]
         } catch (ArrayIndexOutOfBoundsException ignore) {
 
         }
-        println 'result >>>' + result
         result
     }
 

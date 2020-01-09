@@ -38,7 +38,7 @@ class ScpHelper {
                 : ''
 
         def destFile = new File(dest)
-        def outerDirPath = targetFile.isDirectory()
+        def outerDirPath = targetFile.isDirectory() || targetFile.path.matches('^.*?[\\\\/]\\*')
                 ? destFile.path
                 : destFile.parentFile.path
 
