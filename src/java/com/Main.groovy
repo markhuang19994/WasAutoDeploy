@@ -88,7 +88,7 @@ class Main {
                     def attrs = WsFileAnalysis.parseScp(task.content)
                     scpH.cpWithAutoCreateDir(attrs['target'], attrs['dest'], attrs['user'], attrs['owner'], attrs['permission'])
                 } else if (task.type == TaskType.USER) {
-                    sshUrl.user =  task.content
+                    sshUrl.user = task.content
                 }
             }
             println "$wsFileInfo.name running success.\n"
@@ -107,9 +107,9 @@ class Main {
         def scr = new SshCommandRunner(cr, sshUrl)
         def scpH = new ScpHelper(scr, sshUrl)
         scpH.cpWithAutoCreateDir(mainArgs.warPath, project.linuxWarPath)
-        scpH.cpWithAutoCreateDir(mainArgs.projectConfPath, linuxConfigPath)
-        scpH.cpWithAutoCreateDir(deployScript.absolutePath, linuxScriptPath)
-        scpH.cpWithAutoCreateDir(utilScript.absolutePath, linuxScriptPath)
+        scpH.cpWithAutoCreateDir(mainArgs.projectConfPath, linuxConfigPath + '/' + new File(mainArgs.projectConfPath).getName())
+        scpH.cpWithAutoCreateDir(deployScript.absolutePath, linuxScriptPath + '/' + deployScript.getName())
+        scpH.cpWithAutoCreateDir(utilScript.absolutePath, linuxScriptPath + '/' + utilScript.getName())
 
         scr.runCommend(
                 "${prop['linux.wsadmin.path']} " +
