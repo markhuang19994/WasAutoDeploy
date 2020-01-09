@@ -11,7 +11,6 @@ class Project {
 
     String name
     String linuxWarPath
-    String linuxDPath
     String wsAppName
     String wsNodeName
     String wsFiles
@@ -19,7 +18,6 @@ class Project {
     Project(Map properties) {
         name = properties['project.name']
         linuxWarPath = properties['linux.war.path']
-        linuxDPath = properties['linux.d.path']
         wsAppName = properties['ws.app.name']
         wsNodeName = properties['ws.node.name']
         wsFiles = properties['ws.files']

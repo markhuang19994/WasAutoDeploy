@@ -18,10 +18,6 @@ class MainArgsParser {
                 .getActionByFlag('-resources')
                 .orElseGet { errorMessageList << 'resources not found' }
 
-        def dPath = actionAnalysis
-                .getActionByFlag('-dPath')
-                .orElseGet { errorMessageList << 'dPath not found' }
-
         def warPath = actionAnalysis
                 .getActionByFlag('-warPath')
                 .orElseGet { errorMessageList << 'warPath not found' }
@@ -35,9 +31,8 @@ class MainArgsParser {
         }
 
         new MainArgs(
-                resourcesDirPath: resourcesDirPath,
-                dPath: dPath,
                 warPath: warPath,
+                resourcesDirPath: resourcesDirPath,
                 projectConfPath: projectConfPath
         )
     }

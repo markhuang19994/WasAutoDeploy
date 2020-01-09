@@ -91,7 +91,7 @@ class Main {
                     sshUrl.user =  task.content
                 }
             }
-            println "$wsFileInfo.name running success."
+            println "$wsFileInfo.name running success.\n"
         }
     }
 
@@ -106,7 +106,6 @@ class Main {
         def sshUrl = SshUrl.valueOf(prop['ssh.url'] as String)
         def scr = new SshCommandRunner(cr, sshUrl)
         def scpH = new ScpHelper(scr, sshUrl)
-        scpH.cpWithAutoCreateDir(mainArgs.dPath + "/*", project.linuxDPath)
         scpH.cpWithAutoCreateDir(mainArgs.warPath, project.linuxWarPath)
         scpH.cpWithAutoCreateDir(mainArgs.projectConfPath, linuxConfigPath)
         scpH.cpWithAutoCreateDir(deployScript.absolutePath, linuxScriptPath)

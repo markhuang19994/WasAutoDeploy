@@ -9,7 +9,6 @@ package com
  */
 class MainArgs {
     String resourcesDirPath
-    String dPath
     String warPath
     String projectConfPath
 }
