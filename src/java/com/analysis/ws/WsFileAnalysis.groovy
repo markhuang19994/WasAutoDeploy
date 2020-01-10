@@ -23,7 +23,7 @@ class WsFileAnalysis {
         def lastTaskLine = '?'
         def count = 1
         for (line in lines) {
-            def pattern = Pattern.compile('^([a-z0-9A-Z_]+?)[ \t]+?([\\s\\S]*)$')
+            def pattern = Pattern.compile('^([a-z0-9A-Z_]+?)[ \t]+([\\s\\S]*)$')
             def matcher = pattern.matcher(line)
             if (matcher.find()) {
                 if (nowTask != null) {
@@ -51,7 +51,7 @@ class WsFileAnalysis {
                 wsFileInfo.name = temp.join('\n')
             } else if (nowTask == 'SSH_URL') {
                 wsFileInfo.sshUrl = SshUrl.valueOf(temp.join('\n'))
-            } else if (nowTask == 'SCP' || nowTask == 'RUN' || nowTask == 'USER') {
+            } else if (nowTask == 'SCP' || nowTask == 'RUN' || nowTask == 'SSH_RUN' || nowTask == 'USER') {
                 tasks << new Task(type: TaskType.valueOf(nowTask), content: temp.join('\n'))
             } else {
                 throw new IllegalArgumentException("wrong title:$nowTask at line $lastTaskLine")

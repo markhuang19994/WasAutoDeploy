@@ -1,10 +1,14 @@
-NAME Cluster server1 deploy
+NAME     Cluster server1 deploy
 
-SSH_URL root@localhost:60022
+SSH_URL  root@localhost:60022
 
-SCP ${ws}/dummy/D => ~/mnt/share_datac
-SCP ${ws}/dummy/extfunc05.war => /mnt/share_datac/other/was/war/extfunc05.war:us::755
+RUN      cd ${ws}/dummy && tar -C D -zcf d.tar.gz .
 
-RUN echo '123' && \
-    echo 456
+SCP      ${ws}/dummy/d.tar.gz => /mnt/share_data_test1/pcl/d.tar.gz
+
+SSH_RUN  cd /mnt/share_data_test1/pcl
+         tar -C . -zxvf d.tar.gz > /dev/null
+         rm -rf d.tar.gz
+
+RUN      rm -rf ${ws}/dummy/d.tar.gz
 

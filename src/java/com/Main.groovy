@@ -82,8 +82,10 @@ class Main {
             def scpH = new ScpHelper(sshCmdRunner, sshUrl)
 
             for (task in wsFileInfo.tasks) {
-                if (task.type == TaskType.RUN) {
+                if (task.type == TaskType.SSH_RUN) {
                     sshCmdRunner.runCommend(task.content)
+                } else if (task.type == TaskType.RUN) {
+                    cr.runCommend(task.content)
                 } else if (task.type == TaskType.SCP) {
                     def attrs = WsFileAnalysis.parseScp(task.content)
                     scpH.cpWithAutoCreateDir(attrs['target'], attrs['dest'], attrs['user'], attrs['owner'], attrs['permission'])
