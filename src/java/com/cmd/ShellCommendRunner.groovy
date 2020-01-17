@@ -29,23 +29,16 @@ class ShellCommendRunner extends CommendRunner {
             pb.directory(runCommendDirectory)
         }
 
-        println "Run command:\033[33m${commend}\033[0m"
-        Process process = pb.start()
-        String[] console = consoleHelper.processConsole(process, conditionOutputList)
+        run(commend, pb, conditionOutputList, printDebugMsg, execFile)
+    }
 
-        int exitCode = process.waitFor()
-        println "\033[34mExit code:$exitCode\n\033[0m"
-
-        if (exitCode != 0 && printDebugMsg) {
-            println "\033[31m[Debug cmd]\n$execFile.text\033[0m\n"
+    Process runCommendLight(String commend, Map env = [:]) {
+        File execFile = generateExecFile(commend, env)
+        ProcessBuilder pb = new ProcessBuilder(['sh', execFile.absolutePath])
+        if (runCommendDirectory != null) {
+            pb.directory(runCommendDirectory)
         }
-        execFile.deleteOnExit()
-
-        return new ProcessResult(
-                successConsole: console[0],
-                errorConsole: console[1],
-                exitCode: exitCode
-        )
+        pb.start()
     }
 
     File generateExecFile(String commend, Map env) {
