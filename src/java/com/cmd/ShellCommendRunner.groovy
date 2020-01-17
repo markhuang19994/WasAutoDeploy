@@ -10,7 +10,6 @@ class ShellCommendRunner extends CommendRunner {
     private File runCommendDirectory
     private String defaultPATH
     private Map defaultExtraEnv
-    private ConsoleHelper consoleHelper
 
     ShellCommendRunner(File runCommendDirectory, List<String> extraPath,
                        Map<String, String> extraEnv, ConsoleHelper consoleHelper) {

@@ -1,6 +1,7 @@
 package com.cmd
 
 import com.cmd.condition.ConditionOutput
+import com.cmd.helper.ConsoleHelper
 
 /**
  * @author MarkHuang* @version
@@ -10,6 +11,8 @@ import com.cmd.condition.ConditionOutput
  * @since 10/9/19
  */
 abstract class CommendRunner {
+    ConsoleHelper consoleHelper
+
     ProcessResult runCommend(String commend, Boolean printDebugMsg = true,
                              Map env = [:], List<ConditionOutput> conditionOutputList = []){
         throw new UnsupportedOperationException()

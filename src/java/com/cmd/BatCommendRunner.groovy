@@ -10,7 +10,6 @@ class BatCommendRunner extends CommendRunner {
     File runCommendDirectory
     String defaultPATH
     Map defaultExtraEnv
-    ConsoleHelper consoleHelper
 
     BatCommendRunner(File runCommendDirectory, List<String> extraPath,
                      Map<String, String> extraEnv, ConsoleHelper consoleHelper) {
