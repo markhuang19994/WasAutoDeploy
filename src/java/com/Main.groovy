@@ -60,7 +60,7 @@ class Main {
         def execWsFiles = (project.wsFiles ?: '').toString().split('\\|')
         if (execWsFiles.size() == 0) return
 
-        File wsDir = new File(new File(mainArgs.projectConfPath).parentFile, 'ws')
+        File wsDir = Paths.get(mainArgs.projectConfPath).resolve("../ws").normalize().toFile()
         if (!wsDir.exists()) {
             throw new RuntimeException('ws file dir not found: ' + wsDir.absolutePath)
         }
