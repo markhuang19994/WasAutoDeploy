@@ -13,6 +13,8 @@ import com.cmd.ssh.SshCommandRunner
 import com.project.Project
 import com.util.FileUtil
 
+import java.nio.file.Paths
+
 /**
  * @author MarkHuang* @version
  * <ul>
@@ -128,21 +130,14 @@ class Main {
         //cat C:/Windows/system32/config/systemprofile/.ssh/id_rsa.pub | ssh root@192.168.36.91 "cat >> ~/.ssh/authorized_keys"
         //git bash ssh-copy-id root@192.168.36.92
         //echo StrictHostKeyChecking no > C:/Windows/system32/config/systemprofile/.ssh/config
-        def co = new ConditionOutput('\n')
-        co.addCmdCondition(new CmdCondition() {
-            @Override
-            boolean test(List<String> consoleLines) {
-                if (consoleLines.size() < 1) return false
-                return consoleLines[consoleLines.size() - 1].contains('Enter file in which')
-            }
+        def co = new ConditionOutput('\n', { consoleLines ->
+            if (consoleLines.size() < 1) return false
+            return consoleLines[consoleLines.size() - 1].contains('Enter file in which')
         })
-        def co2 = new ConditionOutput('y\n')
-        co2.addCmdCondition(new CmdCondition() {
-            @Override
-            boolean test(List<String> consoleLines) {
-                if (consoleLines.size() < 1) return false
-                return consoleLines[consoleLines.size() - 1].contains('Overwrite (y/n)')
-            }
+
+        def co2 = new ConditionOutput('y\n', { consoleLines ->
+            if (consoleLines.size() < 1) return false
+            return consoleLines[consoleLines.size() - 1].contains('Overwrite (y/n)')
         })
         cr.runCommend('ssh-keygen', true, null, [co, co2])
     }

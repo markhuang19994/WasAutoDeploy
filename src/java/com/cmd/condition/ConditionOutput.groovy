@@ -9,18 +9,15 @@ package com.cmd.condition
  */
 class ConditionOutput {
 
-    List<CmdCondition> cmdConditions = []
+    CmdCondition cmdCondition
     def outputStr = ''
 
-    ConditionOutput(String outputStr) {
+    ConditionOutput(String outputStr, CmdCondition cmdCondition) {
         this.outputStr = outputStr
-    }
-
-    void addCmdCondition(CmdCondition cmdCondition) {
-        cmdConditions << cmdCondition
+        this.cmdCondition = cmdCondition
     }
 
     boolean test(List<String> consoleLines) {
-        cmdConditions.any { it.test(consoleLines) }
+        cmdCondition.test(consoleLines)
     }
 }
