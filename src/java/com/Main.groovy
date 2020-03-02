@@ -12,6 +12,7 @@ import com.cmd.ssh.SshCommandRunner
 import com.project.Project
 import com.sql.ColaSqlProcessor
 import com.util.FileUtil
+import com.util.PropUtil
 
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
@@ -54,7 +55,7 @@ class Main {
         //init project
         def projectConf = mainArgs.projectConfPath as File
         def properties2 = new Properties()
-        properties2.load(new FileInputStream(projectConf))
+        properties2.load(new ByteArrayInputStream(PropUtil.parseProp(projectConf.text).getBytes()))
         project = new Project(new HashMap<>(properties2))
     }
 

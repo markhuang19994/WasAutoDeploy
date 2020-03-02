@@ -1,5 +1,7 @@
 package com.analysis.ws
 
+import com.util.PropUtil
+
 import java.util.regex.Pattern
 
 /**
@@ -12,7 +14,7 @@ import java.util.regex.Pattern
 class WsFileAnalysis {
 
     static WsFileInfo parseWsFile(File wsFile) {
-        def text = parseProp(wsFile.text)
+        def text = PropUtil.parseProp(wsFile.text)
         def lines = text.split('\n|\r\n')
 
         def tasks = []
@@ -78,17 +80,6 @@ class WsFileAnalysis {
         }
         result
     }
-
-    static String parseProp(String evalStr) {
-        return new GroovyShell().evaluate("""
-               def sysProp = System.properties
-               def sysEnv = [:] << System.getenv()
-               def ws = sysProp['WORK_SPACE']
-               \$/${evalStr}/\$
-        """)
-    }
-
-
 }
 
 
