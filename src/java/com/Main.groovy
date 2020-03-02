@@ -7,13 +7,14 @@ import com.analysis.ws.WsFileInfo
 import com.app.ScpHelper
 import com.cmd.CommendRunner
 import com.cmd.CommendRunnerFactory
-import com.cmd.condition.CmdCondition
 import com.cmd.condition.ConditionOutput
 import com.cmd.ssh.SshCommandRunner
 import com.project.Project
+import com.sql.ColaSqlProcessor
 import com.util.FileUtil
 
 import java.nio.file.Paths
+import java.text.SimpleDateFormat
 
 /**
  * @author MarkHuang* @version
@@ -30,6 +31,10 @@ class Main {
 
     static void main(String[] args) {
         init(args)
+
+        println '\nExecute sql scripts\n'
+        execSqlScripts()
+
         execWsFile()
         println '\nDeploy app on websphere\n'
         installOnLinuxBySsh()
@@ -51,6 +56,23 @@ class Main {
         def properties2 = new Properties()
         properties2.load(new FileInputStream(projectConf))
         project = new Project(new HashMap<>(properties2))
+    }
+
+    static execSqlScripts() {
+        if (project.sqlDir) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat('yyyyMMdd')
+            def sqlProcessor = new ColaSqlProcessor()
+            File[] sqlScripts = new File(project.sqlDir)
+                    .listFiles({ it.name.startsWith('DeployUAT') && it.name.endsWith('.sql') } as FileFilter)
+                    ?.sort { f1, f2 ->
+                        Date d1 = dateFormat.parse(f1.name.replaceAll('DeployUAT(.*)\\.sql', '$1'))
+                        Date d2 = dateFormat.parse(f2.name.replaceAll('DeployUAT(.*)\\.sql', '$1'))
+                        Long.compare(d1.time, d2.time)
+                    }?:new File[0]
+            for (sqlScript in sqlScripts) {
+                sqlProcessor.executeSql(sqlScript)
+            }
+        }
     }
 
     static execWsFile() {

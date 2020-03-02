@@ -14,6 +14,7 @@ class Project {
     String wsAppName
     String wsNodeName
     String wsFiles
+    String sqlDir
 
     Project(Map properties) {
         name = properties['project.name']
@@ -21,6 +22,7 @@ class Project {
         wsAppName = properties['ws.app.name']
         wsNodeName = properties['ws.node.name']
         wsFiles = properties['ws.files']
+        sqlDir = properties['sql.dir']
     }
 
 }
