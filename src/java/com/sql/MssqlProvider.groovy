@@ -12,7 +12,7 @@ import groovy.sql.Sql
 class MssqlProvider {
 
     def static env = System.getenv()
-    def static url = env.get('mssqlUrl') ?: 'jdbc:sqlserver://newmacaque:3433;database=XCOLA'
+    def static url = env.get('mssqlUrl') ?: 'jdbc:sqlserver://sssrv01.iead.local:3433;database=XCOLA'
     def static user = env.get('mssqlUser') ?: 'sa'
     def static password = env.get('mssqlPwd') ?: 'p@ssw0rd'
     def static dbConnParams = [

@@ -61,6 +61,7 @@ class Main {
 
     static execSqlScripts() {
         if (project.sqlDir) {
+            println 'sql dir:' + project.sqlDir
             SimpleDateFormat dateFormat = new SimpleDateFormat('yyyyMMdd')
             def sqlProcessor = new ColaSqlProcessor()
             File[] sqlScripts = new File(project.sqlDir)

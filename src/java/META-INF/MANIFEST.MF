@@ -1,13 +1,16 @@
 Manifest-Version: 1.0
-Class-Path: groovy-ant.jar asm-commons.jar junit4.jar groovy-testng.ja
- r ivy.jar bsf.jar groovy-servlet.jar groovy-test.jar hamcrest-core.ja
- r groovy-groovydoc.jar ant.jar commons-logging.jar groovy-sql.jar ant
- -antlr.jar asm.jar groovy-swing.jar jansi.jar testng.jar servlet-api-
- 3.1.jar asm-analysis.jar ant-junit.jar groovy-jsr223.jar groovy-jmx.j
- ar asm-tree.jar groovy-console.jar jsp-api-2.3.jar groovy-2.4.16.jar 
- groovy-xml.jar ant-launcher.jar qdox.jar xstream.jar jsr166y.jar comm
- ons-cli.jar antlr.jar groovy-nio.jar jcommander.jar asm-util.jar groo
- vy-json.jar groovy-groovysh.jar groovy-docgenerator.jar groovy-bsf.ja
- r gpars.jar groovy-templates.jar jline2.jar
 Main-Class: com.Main
+Class-Path: lib/groovy-ant.jar lib/asm-commons.jar lib/junit4.jar lib/gr
+ oovy-testng.jar lib/ivy.jar lib/bsf.jar lib/groovy-servlet.jar lib/groo
+ vy-test.jar lib/hamcrest-core.jar lib/groovy-groovydoc.jar lib/ant.jar 
+ lib/commons-logging.jar lib/groovy-sql.jar lib/ant-antlr.jar lib/asm.ja
+ r lib/groovy-swing.jar lib/jansi.jar lib/testng.jar lib/servlet-api-3.1
+ .jar lib/asm-analysis.jar lib/ant-junit.jar lib/groovy-jsr223.jar lib/g
+ roovy-jmx.jar lib/asm-tree.jar lib/groovy-console.jar lib/jsp-api-2.3.j
+ ar lib/groovy-2.4.16.jar lib/groovy-xml.jar lib/ant-launcher.jar lib/qd
+ ox.jar lib/xstream.jar lib/jsr166y.jar lib/commons-cli.jar lib/antlr.ja
+ r lib/groovy-nio.jar lib/jcommander.jar lib/asm-util.jar lib/groovy-jso
+ n.jar lib/groovy-groovysh.jar lib/groovy-docgenerator.jar lib/groovy-bs
+ f.jar lib/gpars.jar lib/groovy-templates.jar lib/jline2.jar lib/mssql-j
+ dbc-8.2.0.jre8.jar
 
