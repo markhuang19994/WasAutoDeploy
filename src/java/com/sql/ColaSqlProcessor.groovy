@@ -7,6 +7,10 @@ import java.util.regex.Pattern
 
 class ColaSqlProcessor {
 
+    static void main(String[] args) {
+        new ColaSqlProcessor().executeSql('/home/markhuag/Downloads/DeployUAT20200303 (4).sql' as File)
+    }
+
     void executeSql(File sqlFile) {
         def conn = null
         try {
@@ -28,24 +32,23 @@ class ColaSqlProcessor {
     }
 
     private void processUpdateSql(List<SqlExec> updateSqlList, Connection conn) {
-        println "Update table:"
+        println "[Update table]"
         def currentTableName = null
         for (updateSql in updateSqlList) {
             try {
                 if (currentTableName == null || currentTableName != updateSql.tableName) {
                     currentTableName = updateSql.tableName
                 }
-                println '\ntable:' + currentTableName
+                println 'table:' + currentTableName
                 println 'date:' + updateSql.date
 
                 def sqlStr = updateSql.sqlStr
-                def endStr = sqlStr.length() > 300 ? '...' : ''
-                println 'script:\n' + sqlStr.substring(0, Math.min(300, sqlStr.length())) + endStr
+                println 'script:\n' + abbreviateSqlScript(sqlStr)
 
                 def stmt = conn.createStatement()
                 def ddlImpact = stmt.executeUpdate(sqlStr)
                 conn.commit()
-                println  ddlImpact + ' rows affected.\n'
+                println ddlImpact + ' rows affected.\n'
             } catch (Exception e) {
                 e.printStackTrace()
             }
@@ -54,7 +57,7 @@ class ColaSqlProcessor {
 
     private void processCreateTable(List<SqlExec> createSqlList, Connection conn) {
         if (createSqlList.size() > 0) {
-            println "Create table"
+            println '[Create table]'
         }
 
         for (createSql in createSqlList) {
@@ -65,8 +68,10 @@ class ColaSqlProcessor {
                 if (res.next()) {
                     println "table:${createSql.tableName} is exist, skip create script..."
                 } else {
+                    def sqlStr = createSql.sqlStr
+                    println 'script:\n' + abbreviateSqlScript(sqlStr)
                     def stmt = conn.createStatement()
-                    stmt.execute(createSql.sqlStr)
+                    stmt.execute(sqlStr)
                     conn.commit()
                     println "create table:${createSql.tableName} success."
                 }
@@ -139,6 +144,15 @@ class ColaSqlProcessor {
 
     private sqlStrListToString(List<String> sqlStrList) {
         return sqlStrList.join('\r\n').replaceAll('GO\r?\n', '')
+    }
+
+    private String abbreviateSqlScript(String sqlStr, int len = 300) {
+        sqlStr = sqlStr.split('\r?\n')
+                .findAll { !it.matches('^\r*?--[\\s\\S]*$') }
+                .findAll { !it.matches('^\r*?\n?$') }
+                .join('\r\n')
+        def endStr = sqlStr.length() > len ? '...' : ''
+        return sqlStr.substring(0, Math.min(len, sqlStr.length())) + endStr
     }
 
 }

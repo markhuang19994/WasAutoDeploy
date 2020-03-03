@@ -32,8 +32,6 @@ class Main {
 
     static void main(String[] args) {
         init(args)
-
-        println '\nExecute sql scripts\n'
         execSqlScripts()
 
         execWsFile()
@@ -61,6 +59,7 @@ class Main {
 
     static execSqlScripts() {
         if (project.sqlDir) {
+            println '\nExecute sql scripts'
             println 'sql dir:' + project.sqlDir
             SimpleDateFormat dateFormat = new SimpleDateFormat('yyyyMMdd')
             def sqlProcessor = new ColaSqlProcessor()
