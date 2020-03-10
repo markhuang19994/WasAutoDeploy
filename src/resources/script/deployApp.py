@@ -1,5 +1,6 @@
 import sys
 import os.path
+import time
 import application_util as app_util
 from java.io import FileInputStream
 from java.util import Properties
@@ -43,10 +44,12 @@ def isAppStop(cellName, appName, process):
     return 1
 
 def stopApp(appManager, appName, process):
+    print 'Stop app: %s/%s...' % (process, appName)
     AdminControl.invoke(appManager, 'stopApplication', appName)
     print 'Stop app %s/%s success.' % (process, appName)
 
 def updateApp(appName, warPath):
+    print 'update app: %s...' % appName
     AdminApp.update(appName, 'app', ['-operation', 'update', '-contents', warPath])
     AdminConfig.save()
     print 'Update app %s success.' % (appName)
@@ -72,13 +75,28 @@ def installApp(cluster, appName, contextPath, virtualHost, warPath):
     app_util.syncClusterNodes(cluster)
 
 def startApp(appManager, appName, process):
-    AdminControl.invoke(appManager, 'startApplication', appName)
+    print 'Start app: %s/%s...' % (process, appName)
+    print 'AdminControl.invoke( %s, startApplication, %s)' % (appManager, appName)
+    AdminControl.invoke(str(appManager), 'startApplication', appName)
     print 'Start app: %s/%s success.' % (process, appName)
 
 def uninstallApp(appName):
     AdminApp.uninstall(appName)
     AdminConfig.save()
     print 'Uninstall app: %s success.' % (appName)
+
+def waitExtractAppBinaryFile(appName):
+    print 'wait system extracts all application binary files..'
+    result = AdminApp.isAppReady(appName)
+    count = 0
+    while (result == "false"):
+       time.sleep(5)
+       result = AdminApp.isAppReady(appName)
+       count = count + 1
+       if count >= 60:
+        raise Exception('wait system extracts all application binary files timeout, appName:%s' % appName)
+    print("system extracts binary files success...")
+    print AdminApp.getDeployStatus(appName)
 
 def main():
     checkWarExist(warPath)
@@ -99,6 +117,7 @@ def main():
                 stopApp(appManager, appName, process)
 
         updateApp(appName, warPath)
+        waitExtractAppBinaryFile(appName)
 
         if classloaderMode is not None:
             app_util.setClassLoaderMode(appName, classloaderMode)
@@ -113,6 +132,7 @@ def main():
             startApp(appManager, appName, process)
     else:
         installApp(cluster, appName, contextPath, virtualHost, warPath)
+        waitExtractAppBinaryFile(appName)
         if classloaderMode is not None:
             app_util.setClassLoaderMode(appName, classloaderMode)
         processes = app_util.getServersInCluster(cluster)
