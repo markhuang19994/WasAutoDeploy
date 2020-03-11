@@ -77,3 +77,6 @@ def setClassLoaderMode(appName, mode):
     print 'change classloader mode success.'
     print AdminConfig.showall(classldr)
 
+def getAppInfo(appName):
+    return AdminApp.view(appName)
+

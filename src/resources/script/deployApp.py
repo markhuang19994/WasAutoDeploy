@@ -143,5 +143,7 @@ def main():
                 print 'Application manager not found, cell:%s server:%s' %(cellName, process)
                 continue
             startApp(appManager, appName, process)
+    print 'app info:\n'
+    print app_util.getAppInfo(appName)
 
 main()

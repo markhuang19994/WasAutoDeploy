@@ -36,7 +36,7 @@ class Main {
 
         execWsFile()
         println '\nDeploy app on websphere\n'
-        installOnLinuxBySsh()
+        installAppOnLinuxBySsh()
     }
 
     static init(String[] args) {
@@ -69,7 +69,7 @@ class Main {
                         Date d1 = dateFormat.parse(f1.name.replaceAll('DeployUAT(.*)\\.sql', '$1'))
                         Date d2 = dateFormat.parse(f2.name.replaceAll('DeployUAT(.*)\\.sql', '$1'))
                         Long.compare(d1.time, d2.time)
-                    }?:new File[0]
+                    } ?: new File[0]
             for (sqlScript in sqlScripts) {
                 sqlProcessor.executeSql(sqlScript)
             }
@@ -122,31 +122,36 @@ class Main {
         }
     }
 
-    static installOnLinuxBySsh() {
+    static installAppOnLinuxBySsh() {
+        def linuxTempDirPath = "tmp/${UUID.randomUUID().toString().replace('-', '')}"
+        def linuxConfigDirPath = "${linuxTempDirPath}/config"
+        def linuxScriptDirPath = "${linuxTempDirPath}/script"
+        def linuxWarPath = "${linuxTempDirPath}/war/${new File(mainArgs.warPath).getName()}"
+
         def deployScript = FileUtil.getResource('/script/deployApp.py')
         def utilScript = FileUtil.getResource('/script/application_util.py')
-        def linuxConfigPath = prop['linux.config.path']
-        def linuxScriptPath = prop['linux.script.path']
         List<String> extraPath = (prop['cmd.extra.path'] as String)?.split(',')?.toList() ?: []
         def cr = CommendRunnerFactory.getCommendRunner(null, extraPath, null, null)
 
         def sshUrl = SshUrl.valueOf(prop['ssh.url'] as String)
         def scr = new SshCommandRunner(cr, sshUrl)
         def scpH = new ScpHelper(scr, sshUrl)
-        scpH.cpWithAutoCreateDir(mainArgs.warPath, project.linuxWarPath)
-        scpH.cpWithAutoCreateDir(mainArgs.projectConfPath, linuxConfigPath + '/' + new File(mainArgs.projectConfPath).getName())
-        scpH.cpWithAutoCreateDir(deployScript.absolutePath, linuxScriptPath + '/' + deployScript.getName())
-        scpH.cpWithAutoCreateDir(utilScript.absolutePath, linuxScriptPath + '/' + utilScript.getName())
+        scpH.cpWithAutoCreateDir(mainArgs.warPath, linuxWarPath)
+        scpH.cpWithAutoCreateDir(mainArgs.projectConfPath, "linuxConfigDirPath/${new File(mainArgs.projectConfPath).getName()}")
+        scpH.cpWithAutoCreateDir(deployScript.absolutePath, "linuxScriptDirPath/${deployScript.getName()}")
+        scpH.cpWithAutoCreateDir(utilScript.absolutePath, "linuxScriptDirPath/${utilScript.getName()}")
 
         scr.runCommend(
                 "${prop['linux.wsadmin.path']} " +
                         "-lang jython " +
-                        "-javaoption \"-Dpython.path=${linuxScriptPath}\" " +
+                        "-javaoption \"-Dpython.path=${linuxScriptDirPath}\" " +
                         "-conntype SOAP " +
                         "-user ${prop['wsadmin.user.name']} " +
                         "-password ${prop['wsadmin.user.pwd']} " +
-                        "-f ${linuxScriptPath}/deployApp.py ${linuxConfigPath}"
+                        "-f ${linuxScriptDirPath}/deployApp.py ${linuxConfigDirPath}"
         )
+
+        scr.runCommend("rm -f ${linuxTempDirPath}")
     }
 
     static genSshKey(CommendRunner cr) {

@@ -10,7 +10,6 @@ package com.project
 class Project {
 
     String name
-    String linuxWarPath
     String wsAppName
     String wsNodeName
     String wsFiles
@@ -18,7 +17,6 @@ class Project {
 
     Project(Map properties) {
         name = properties['project.name']
-        linuxWarPath = properties['linux.war.path']
         wsAppName = properties['ws.app.name']
         wsNodeName = properties['ws.node.name']
         wsFiles = properties['ws.files']
