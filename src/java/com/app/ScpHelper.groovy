@@ -1,7 +1,8 @@
 package com.app
 
 import com.analysis.ws.SshUrl
-import com.cmd.ssh.SshCommandRunner
+import com.cmd.CommendSetting
+import com.cmd.SshCommandRunner
 
 /**
  * @author MarkHuang*
@@ -13,12 +14,14 @@ import com.cmd.ssh.SshCommandRunner
 class ScpHelper {
 
     SshCommandRunner scr
-
+    CommendSetting cs
     SshUrl sshUrl
 
     ScpHelper(SshCommandRunner scr, SshUrl sshUrl) {
         this.scr = scr
         this.sshUrl = sshUrl
+        this.cs = new CommendSetting()
+        cs.exitcodeHandler = { it == 0 }
     }
 
     void cpWithAutoCreateDir(target, dest, user = null, owner = null, permission = null) {
@@ -47,11 +50,11 @@ class ScpHelper {
                         "${ownModCmd == '' ? '' : ' && '}" +
                         ownModCmd.replace('@dest', outerDirPath) +
                         ' || true'
-        )
+                , cs)
 
-        scr.commandRunner.runCommend("${scpCmd} -r ${target} ${sshUrl.fullUrl()}:${dest}")
+        scr.commandRunner.runCommend("${scpCmd} -r ${target} ${sshUrl.fullUrl()}:${dest}", cs)
         if (ownModCmd != '') {
-            scr.runCommend(" ${ownModCmd.replace('@dest', dest)}")
+            scr.runCommend(" ${ownModCmd.replace('@dest', dest)}", cs)
         }
     }
 }

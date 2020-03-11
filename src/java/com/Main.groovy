@@ -7,8 +7,9 @@ import com.analysis.ws.WsFileInfo
 import com.app.ScpHelper
 import com.cmd.CommendRunner
 import com.cmd.CommendRunnerFactory
+import com.cmd.CommendSetting
 import com.cmd.condition.ConditionOutput
-import com.cmd.ssh.SshCommandRunner
+import com.cmd.SshCommandRunner
 import com.project.Project
 import com.sql.ColaSqlProcessor
 import com.util.FileUtil
@@ -29,8 +30,10 @@ class Main {
     static def prop
     static MainArgs mainArgs
     static Project project
+    static CommendSetting cs = new CommendSetting()
 
     static void main(String[] args) {
+        cs.exitcodeHandler = {it == 0}
         init(args)
         execSqlScripts()
 
@@ -108,12 +111,13 @@ class Main {
 
             for (task in wsFileInfo.tasks) {
                 if (task.type == TaskType.SSH_RUN) {
-                    sshCmdRunner.runCommend(task.content)
+                    sshCmdRunner.runCommend(task.content, cs)
                 } else if (task.type == TaskType.RUN) {
-                    cr.runCommend(task.content)
+                    cr.runCommend(task.content, cs)
                 } else if (task.type == TaskType.SCP) {
                     def attrs = WsFileAnalysis.parseScp(task.content)
-                    scpH.cpWithAutoCreateDir(attrs['target'], attrs['dest'], attrs['user'], attrs['owner'], attrs['permission'])
+                    scpH.cpWithAutoCreateDir(
+                            attrs['target'], attrs['dest'], attrs['user'], attrs['owner'], attrs['permission'])
                 } else if (task.type == TaskType.USER) {
                     sshUrl.user = task.content
                 }
@@ -149,9 +153,9 @@ class Main {
                         "-user ${prop['wsadmin.user.name']} " +
                         "-password ${prop['wsadmin.user.pwd']} " +
                         "-f ${linuxScriptDirPath}/deployApp.py ${linuxConfigDirPath}"
-        )
+        , cs)
 
-        scr.runCommend("rm -f ${linuxTempDirPath}")
+        scr.runCommend("rm -f ${linuxTempDirPath}", cs)
     }
 
     static genSshKey(CommendRunner cr) {
@@ -167,7 +171,7 @@ class Main {
             if (consoleLines.size() < 1) return false
             return consoleLines[consoleLines.size() - 1].contains('Overwrite (y/n)')
         })
-        cr.runCommend('ssh-keygen', true, null, [co, co2])
+        cr.runCommend('ssh-keygen', new CommendSetting(conditionOutputList: [co, co2]))
     }
 
 }

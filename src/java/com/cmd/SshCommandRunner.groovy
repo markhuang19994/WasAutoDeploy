@@ -1,4 +1,4 @@
-package com.cmd.ssh
+package com.cmd
 
 import com.analysis.ws.SshUrl
 import com.cmd.CommendRunner
@@ -22,8 +22,7 @@ class SshCommandRunner {
         this.commandRunner = commandRunner
     }
 
-    ProcessResult runCommend(String beforeCmd, String cmd, Boolean printDebugMsg = true,
-                             Map env = [:], List<ConditionOutput> conditionOutputList = []) {
+    ProcessResult runCommend(String beforeCmd, String cmd, CommendSetting commendSetting) {
         File tempSh = FileUtil.generateTempFile()
         if (beforeCmd) {
             tempSh << beforeCmd
@@ -31,14 +30,13 @@ class SshCommandRunner {
         tempSh << cmd
         println "cmd:${cmd}"
 
-        def result = commandRunner.runCommend("cat ${tempSh.absolutePath} | ssh ${sshUrl.fullUrl()} -p $sshUrl.port 'bash -'", printDebugMsg, env, conditionOutputList)
+        def result = commandRunner.runCommend("cat ${tempSh.absolutePath} | ssh ${sshUrl.fullUrl()} -p $sshUrl.port 'bash -'", commendSetting)
         tempSh.delete()
         result
     }
 
-    ProcessResult runCommend(String cmd, Boolean printDebugMsg = true,
-                             Map env = [:], List<ConditionOutput> conditionOutputList = []) {
-        runCommend(null, cmd, printDebugMsg, env, conditionOutputList)
+    ProcessResult runCommend(String cmd, CommendSetting commendSetting) {
+        runCommend(null, cmd, commendSetting)
     }
 
 }

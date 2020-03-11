@@ -20,15 +20,14 @@ class BatCommendRunner extends CommendRunner {
         this.consoleHelper = consoleHelper
     }
 
-    ProcessResult runCommend(String commend, Boolean printDebugMsg = true,
-                             Map env = [:], List<ConditionOutput> conditionOutputList = []) {
-        File execFile = generateExecFile(commend, env)
+    ProcessResult runCommend(String commend, CommendSetting commendSetting) {
+        File execFile = generateExecFile(commend, commendSetting.env)
         ProcessBuilder pb = new ProcessBuilder(['cmd', '/C', execFile.absolutePath])
         if (runCommendDirectory != null) {
             pb.directory(runCommendDirectory)
         }
 
-        run(commend, pb, conditionOutputList, printDebugMsg, execFile)
+        run(commend, pb, execFile, commendSetting)
     }
 
     Process runCommendLight(String commend, Map env = [:]) {
