@@ -127,7 +127,8 @@ class Main {
     }
 
     static installAppOnLinuxBySsh() {
-        def linuxTempDirPath = "tmp/${UUID.randomUUID().toString().replace('-', '')}"
+        def linuxTempDirPath = "/tmp/${UUID.randomUUID().toString().replace('-', '')}"
+
         def linuxConfigDirPath = "${linuxTempDirPath}/config"
         def linuxScriptDirPath = "${linuxTempDirPath}/script"
         def linuxWarPath = "${linuxTempDirPath}/war/${new File(mainArgs.warPath).getName()}"
@@ -141,9 +142,9 @@ class Main {
         def scr = new SshCommandRunner(cr, sshUrl)
         def scpH = new ScpHelper(scr, sshUrl)
         scpH.cpWithAutoCreateDir(mainArgs.warPath, linuxWarPath)
-        scpH.cpWithAutoCreateDir(mainArgs.projectConfPath, "linuxConfigDirPath/${new File(mainArgs.projectConfPath).getName()}")
-        scpH.cpWithAutoCreateDir(deployScript.absolutePath, "linuxScriptDirPath/${deployScript.getName()}")
-        scpH.cpWithAutoCreateDir(utilScript.absolutePath, "linuxScriptDirPath/${utilScript.getName()}")
+        scpH.cpWithAutoCreateDir(mainArgs.projectConfPath, "${linuxConfigDirPath}/${new File(mainArgs.projectConfPath).getName()}")
+        scpH.cpWithAutoCreateDir(deployScript.absolutePath, "${linuxScriptDirPath}/${deployScript.getName()}")
+        scpH.cpWithAutoCreateDir(utilScript.absolutePath, "${linuxScriptDirPath}/${utilScript.getName()}")
 
         scr.runCommend(
                 "${prop['linux.wsadmin.path']} " +
@@ -155,7 +156,7 @@ class Main {
                         "-f ${linuxScriptDirPath}/deployApp.py ${linuxConfigDirPath}"
         , cs)
 
-        scr.runCommend("rm -f ${linuxTempDirPath}", cs)
+        scr.runCommend("rm -rf ${linuxTempDirPath}", cs)
     }
 
     static genSshKey(CommendRunner cr) {

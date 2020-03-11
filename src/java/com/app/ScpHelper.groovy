@@ -44,6 +44,7 @@ class ScpHelper {
         def outerDirPath = targetFile.isDirectory() || targetFile.path.matches('^.*?[\\\\/]\\*')
                 ? destFile.path
                 : destFile.parentFile.path
+        outerDirPath = outerDirPath.replaceAll('\\\\', '/')
 
         scr.runCommend(
                 "[ ! -d $outerDirPath ] && mkdir -p $outerDirPath" +
