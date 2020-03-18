@@ -8,6 +8,7 @@ from java.util import Properties
 prop = Properties()
 prop.load(FileInputStream(sys.argv[0] + '/config_app.properties'))
 
+warPath = sys.argv[1]
 cellName = prop.get('ws.cell.name')
 serverName = prop.get('ws.server.name')
 nodeName = prop.get('ws.node.name')
@@ -15,7 +16,6 @@ cluster = prop.get('ws.cluster.name')
 contextPath = prop.get('ws.context.path')
 virtualHost = prop.get('ws.virtual.host')
 appName = prop.get('ws.app.name')
-warPath = prop.get('linux.war.path')
 classloaderMode = prop.get('ws.classloader.mode')
 
 print('serverName is %s' % (serverName))

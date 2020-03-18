@@ -153,7 +153,7 @@ class Main {
                         "-conntype SOAP " +
                         "-user ${prop['wsadmin.user.name']} " +
                         "-password ${prop['wsadmin.user.pwd']} " +
-                        "-f ${linuxScriptDirPath}/deployApp.py ${linuxConfigDirPath}"
+                        "-f ${linuxScriptDirPath}/deployApp.py ${linuxConfigDirPath} ${linuxWarPath}"
         , cs)
 
         scr.runCommend("rm -rf ${linuxTempDirPath}", cs)
