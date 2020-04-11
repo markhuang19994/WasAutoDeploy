@@ -1,6 +1,6 @@
 package com
 
-import com.analysis.ActionAnalysis
+import com.analysis.ActionParser
 
 /**
  * @author MarkHuang* @version
@@ -11,7 +11,7 @@ import com.analysis.ActionAnalysis
  */
 class MainArgsParser {
     static MainArgs parseMainArgs(String[] args) {
-        def actionAnalysis = ActionAnalysis.getInstance(args)
+        def actionAnalysis = ActionParser.getInstance(args)
         def errorMessageList = []
 
         def resourcesDirPath = actionAnalysis

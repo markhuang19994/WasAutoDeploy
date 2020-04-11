@@ -1,8 +1,9 @@
 package com
 
+import com.analysis.PropParser
 import com.analysis.ws.SshUrl
 import com.analysis.ws.TaskType
-import com.analysis.ws.WsFileAnalysis
+import com.analysis.ws.WsFileParser
 import com.analysis.ws.WsFileInfo
 import com.app.ScpHelper
 import com.cmd.CommendRunner
@@ -13,7 +14,6 @@ import com.cmd.SshCommandRunner
 import com.project.Project
 import com.sql.ColaSqlProcessor
 import com.util.FileUtil
-import com.util.PropUtil
 
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
@@ -56,7 +56,7 @@ class Main {
         //init project
         def projectConf = mainArgs.projectConfPath as File
         def properties2 = new Properties()
-        properties2.load(new ByteArrayInputStream(PropUtil.parseProp(projectConf.text).getBytes()))
+        properties2.load(new ByteArrayInputStream(new PropParser().parseString(projectConf.text).getBytes()))
         project = new Project(new HashMap<>(properties2))
     }
 
@@ -92,6 +92,7 @@ class Main {
         }
 
         List<WsFileInfo> wsFileInfos = []
+        def wsFileParser = new WsFileParser()
 
         for (execWsFile in execWsFiles) {
             File wsFile = new File(wsDir, execWsFile)
@@ -99,7 +100,7 @@ class Main {
                 throw new RuntimeException('ws file not found: ' + wsFile.absolutePath)
             }
 
-            wsFileInfos << WsFileAnalysis.parseWsFile(wsFile)
+            wsFileInfos << wsFileParser.parse(wsFile)
         }
 
         for (wsFileInfo in wsFileInfos) {
@@ -115,7 +116,7 @@ class Main {
                 } else if (task.type == TaskType.RUN) {
                     cr.runCommend(task.content, cs)
                 } else if (task.type == TaskType.SCP) {
-                    def attrs = WsFileAnalysis.parseScp(task.content)
+                    def attrs = WsFileParser.parseScp(task.content)
                     scpH.cpWithAutoCreateDir(
                             attrs['target'], attrs['dest'], attrs['user'], attrs['owner'], attrs['permission'])
                 } else if (task.type == TaskType.USER) {

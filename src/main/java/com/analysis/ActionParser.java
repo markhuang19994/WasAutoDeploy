@@ -9,10 +9,10 @@ import java.util.*;
  * </ul>
  * @since 2018/10/29
  */
-public class ActionAnalysis {
-    private Map<String, List<String>> actionMap = new HashMap<>();
+public class ActionParser {
+    private final Map<String, List<String>> actionMap = new HashMap<>();
 
-    private ActionAnalysis(String[] args) {
+    private ActionParser(String[] args) {
         List<String> tempParams = new ArrayList<>();
         for (String arg : args) {
             if (arg.charAt(0) == '-') {
@@ -24,8 +24,8 @@ public class ActionAnalysis {
         }
     }
 
-    public static ActionAnalysis getInstance(String[] args) {
-        return new ActionAnalysis(args);
+    public static ActionParser getInstance(String[] args) {
+        return new ActionParser(args);
     }
 
     public Map<String, List<String>> getActionMap() {

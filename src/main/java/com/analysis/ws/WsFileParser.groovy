@@ -1,6 +1,6 @@
 package com.analysis.ws
 
-import com.util.PropUtil
+import com.analysis.PropParser
 
 import java.util.regex.Pattern
 
@@ -11,10 +11,15 @@ import java.util.regex.Pattern
  * </ul>
  * @since 1/8/20
  */
-class WsFileAnalysis {
+class WsFileParser {
 
-    static WsFileInfo parseWsFile(File wsFile) {
-        def text = PropUtil.parseProp(wsFile.text)
+    def propParser = new PropParser()
+
+    WsFileInfo parse(File wsFile) {
+        parse(wsFile.text)
+    }
+
+    WsFileInfo parse(String text) {
         def lines = text.split('\n|\r\n')
 
         def tasks = []
@@ -22,7 +27,7 @@ class WsFileAnalysis {
 
         def temp = []
         def nowTask = null
-        def lastTaskLine = '?'
+        def lastTaskLine = -1
         def count = 1
         for (line in lines) {
             def pattern = Pattern.compile('^([a-z0-9A-Z_]+?)[ \t]+([\\s\\S]*)$')
@@ -47,14 +52,18 @@ class WsFileAnalysis {
         return wsFileInfo
     }
 
-    private static void parseTask(String nowTask, List temp, WsFileInfo wsFileInfo, List tasks, Serializable lastTaskLine) {
+    private void parseTask(String nowTask, List<String> taskContentLines, WsFileInfo wsFileInfo, List tasks, int lastTaskLine) {
         if (nowTask != null) {
+            def taskContent = propParser.parseString(taskContentLines.join('\n'))
             if (nowTask == 'NAME') {
-                wsFileInfo.name = temp.join('\n')
+                wsFileInfo.name = taskContent
+            } else if (nowTask == 'DEF') {
+                int idx = taskContent.indexOf('=')
+                propParser.updateVarMap(taskContent[0..idx - 1].trim(), taskContent[idx + 1..-1])
             } else if (nowTask == 'SSH_URL') {
-                wsFileInfo.sshUrl = SshUrl.valueOf(temp.join('\n'))
+                wsFileInfo.sshUrl = SshUrl.valueOf(taskContent)
             } else if (nowTask == 'SCP' || nowTask == 'RUN' || nowTask == 'SSH_RUN' || nowTask == 'USER') {
-                tasks << new Task(type: TaskType.valueOf(nowTask), content: temp.join('\n'))
+                tasks << new Task(type: TaskType.valueOf(nowTask), content: taskContent)
             } else {
                 throw new IllegalArgumentException("wrong title:$nowTask at line $lastTaskLine")
             }
