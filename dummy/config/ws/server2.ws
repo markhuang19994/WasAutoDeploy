@@ -1,11 +1,23 @@
-NAME Cluster server2 deploy
+NAME    Cluster server2 deploy
 
 SSH_URL root@localhost:60022
 
-SCP /home/markhuag/Documents/project/source/Learn/WasAutoDeploy/dummy/D:~/mnt/share_data2:::
-SCP /home/markhuag/Documents/project/source/Learn/WasAutoDeploy/dummy/extfunc05.war:~/mnt/share_data2/other/was/war/extfunc05.war:ub::755
+RUN     cd ${ws}/dummy
+        tar -C D -zcf d.tar.gz .
+        PROJECT_DIR=D://ws_tmp/my_project
+        mkdir -p "$$PROJECT_DIR"
+        mv d.tar.gz "$$PROJECT_DIR"/d.tar.gz
+        mv my_project.war "$$PROJECT_DIR"/my_project.war
 
-RUN echo 'Hello ' && \
-    echo "I'm server2"
+SSH_RUN DIR=/mnt/macaque/ws_temp
+        mkdir -p "$$DIR"
+        if ! mountpoint -q "$$DIR"
+        then
+            mount -t cifs -o user=iisi,password=P@ssw0rd201603,uid=1000,gid=1000 \
+            //finsrv01.iead.local/ws_temp "$$DIR"
+        fi
+        cd "$$DIR"/my_project
+        tar -C . -zxvf d.tar.gz > /dev/null
+        rm -rf d.tar.gz
 
 
