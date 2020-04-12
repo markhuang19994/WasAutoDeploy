@@ -1,9 +1,8 @@
 package com.cmd
 
-import com.analysis.ws.SshUrl
 import com.cmd.CommendRunner
 import com.cmd.ProcessResult
-import com.cmd.condition.ConditionOutput
+import com.parse.ws.SshUrl
 import com.util.FileUtil
 
 /**

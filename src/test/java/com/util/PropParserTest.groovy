@@ -1,10 +1,10 @@
 package com.util
 
-import com.analysis.PropParser
-import org.junit.jupiter.api.BeforeEach;
+import com.parse.PropParser
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PropParserTest {
     PropParser propParser

@@ -1,10 +1,10 @@
 package com
 
-import com.analysis.PropParser
-import com.analysis.ws.SshUrl
-import com.analysis.ws.TaskType
-import com.analysis.ws.WsFileParser
-import com.analysis.ws.WsFileInfo
+import com.parse.PropParser
+import com.parse.ws.SshUrl
+import com.parse.ws.TaskType
+import com.parse.ws.WsFileParser
+import com.parse.ws.WsFileInfo
 import com.app.ScpHelper
 import com.cmd.CommendRunner
 import com.cmd.CommendRunnerFactory

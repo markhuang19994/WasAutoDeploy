@@ -1,6 +1,6 @@
 package com.app
 
-import com.analysis.ws.SshUrl
+import com.parse.ws.SshUrl
 import com.cmd.CommendSetting
 import com.cmd.SshCommandRunner
 

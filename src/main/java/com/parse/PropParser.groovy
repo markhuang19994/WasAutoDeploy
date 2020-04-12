@@ -1,4 +1,4 @@
-package com.analysis
+package com.parse
 
 class PropParser {
     private def varMap = [

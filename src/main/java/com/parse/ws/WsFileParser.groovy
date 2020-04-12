@@ -1,6 +1,6 @@
-package com.analysis.ws
+package com.parse.ws
 
-import com.analysis.PropParser
+import com.parse.PropParser
 
 import java.util.regex.Pattern
 

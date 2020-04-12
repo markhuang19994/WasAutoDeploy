@@ -1,6 +1,6 @@
 package com
 
-import com.analysis.ActionParser
+import com.parse.ActionParser
 
 /**
  * @author MarkHuang* @version

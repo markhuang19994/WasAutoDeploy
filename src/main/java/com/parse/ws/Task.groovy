@@ -1,4 +1,4 @@
-package com.analysis.ws
+package com.parse.ws
 
 class Task {
     TaskType type

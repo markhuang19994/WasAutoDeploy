@@ -1,4 +1,4 @@
-package com.analysis.ws
+package com.parse.ws
 
 import groovy.json.JsonBuilder
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +19,7 @@ class WsFileParserTest {
     void parse() {
         def wsFileText = '''
             |NAME       MY_PROJECT
+            |# some comments
             |DEF        NAME=Mark
             |DEF        FULL_NAME=${NAME}Huang
             |SSH_URL    ${FULL_NAME}@192.168.36.91

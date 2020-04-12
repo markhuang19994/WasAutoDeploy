@@ -1,4 +1,4 @@
-package com.analysis;
+package com.parse;
 
 import java.util.*;
 
