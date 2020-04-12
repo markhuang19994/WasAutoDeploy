@@ -64,9 +64,9 @@ class Main {
         if (project.sqlDir) {
             println '\nExecute sql scripts'
             println 'sql dir:' + project.sqlDir
-            SimpleDateFormat dateFormat = new SimpleDateFormat('yyyyMMdd')
+            def dateFormat = new SimpleDateFormat('yyyyMMdd')
             def sqlProcessor = new ColaSqlProcessor()
-            File[] sqlScripts = new File(project.sqlDir)
+            def sqlScripts = new File(project.sqlDir)
                     .listFiles({ it.name.startsWith('DeployUAT') && it.name.endsWith('.sql') } as FileFilter)
                     ?.sort { f1, f2 ->
                         Date d1 = dateFormat.parse(f1.name.replaceAll('DeployUAT(.*)\\.sql', '$1'))
@@ -86,16 +86,16 @@ class Main {
         def execWsFiles = (project.wsFiles ?: '').toString().split('\\|')
         if (execWsFiles.size() == 0) return
 
-        File wsDir = Paths.get(mainArgs.projectConfPath).resolve("../ws").normalize().toFile()
+        def wsDir = Paths.get(mainArgs.projectConfPath).resolve("../ws").normalize().toFile()
         if (!wsDir.exists()) {
             throw new RuntimeException('ws file dir not found: ' + wsDir.absolutePath)
         }
 
-        List<WsFileInfo> wsFileInfos = []
+        def wsFileInfos = []
         def wsFileParser = new WsFileParser()
 
         for (execWsFile in execWsFiles) {
-            File wsFile = new File(wsDir, execWsFile)
+            def wsFile = new File(wsDir, execWsFile)
             if (!wsFile.exists()) {
                 throw new RuntimeException('ws file not found: ' + wsFile.absolutePath)
             }
@@ -136,7 +136,7 @@ class Main {
 
         def deployScript = FileUtil.getResource('/script/deployApp.py')
         def utilScript = FileUtil.getResource('/script/application_util.py')
-        List<String> extraPath = (prop['cmd.extra.path'] as String)?.split(',')?.toList() ?: []
+        def extraPath = (prop['cmd.extra.path'] as String)?.split(',')?.toList() ?: []
         def cr = CommendRunnerFactory.getCommendRunner(null, extraPath, null, null)
 
         def sshUrl = SshUrl.valueOf(prop['ssh.url'] as String)
