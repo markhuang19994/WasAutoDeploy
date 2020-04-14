@@ -4,7 +4,7 @@ class PropParser {
     private def varMap = [
             sysProp: 'System.properties',
             sysEnv : '[:] << System.getenv()',
-            ws     : 'sysProp[\'WORK_SPACE\']'
+            ws     : "String.valueOf(sysProp['WORK_SPACE']).replace('\\\\', '/')"
     ]
 
     void updateVarMap(String varName, String val) {
