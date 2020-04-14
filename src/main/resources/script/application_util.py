@@ -68,14 +68,26 @@ def syncClusterNodes(clusterName):
         AdminControl.invoke(sync, 'sync')
         print 'sync %s success.' % (nodeName)
 
-def setClassLoaderMode(appName, mode):
+def getDeployObject(appName):
     dep = AdminConfig.getid('/Deployment:%s/' % appName)
-    depObject = AdminConfig.showAttribute(dep, 'deployedObject')
+    return AdminConfig.showAttribute(dep, 'deployedObject')
+
+# mode: PARENT_FIRST, PARENT_LAST
+def setClassLoaderMode(appName, mode):
+    depObject = getDeployObject(appName)
     classldr = AdminConfig.showAttribute(depObject, 'classloader')
     AdminConfig.modify(classldr, [['mode', mode]])
     AdminConfig.save()
     print 'change classloader mode success.'
     print AdminConfig.showall(classldr)
+
+# policy: SINGLE, MULTIPLE
+def setClassLoaderPolicy(appName, policy):
+    depObject = getDeployObject(appName)
+    AdminConfig.modify(depObject, [['warClassLoaderPolicy', policy]])
+    AdminConfig.save()
+    print 'change classloader policy success.'
+    AdminConfig.show(depObject, 'warClassLoaderPolicy')
 
 def getAppInfo(appName):
     return AdminApp.view(appName)
