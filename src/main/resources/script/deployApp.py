@@ -27,6 +27,7 @@ print('appName is %s' % (appName))
 print('warPath is %s' % (warPath))
 print('classloaderMode is %s' % (classloaderMode))
 print('classloaderPolicy is %s' % (classloaderPolicy))
+print('sharedLib is %s' % (sharedLib))
 
 def checkWarExist(warPath):
     if not os.path.isfile(warPath) :
@@ -144,7 +145,7 @@ def main():
     else:
         installApp(cluster, appName, contextPath, virtualHost, warPath)
         waitExtractAppBinaryFile(appName)
-        setWarConfigure(appName, classloaderMode, classloaderPolicy)
+        setWarConfigure(appName, classloaderMode, classloaderPolicy, sharedLib)
 
         processes = app_util.getServersInCluster(cluster)
         print 'find processes in cluster%s: %s' % (cluster, processes)

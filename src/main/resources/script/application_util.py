@@ -101,8 +101,7 @@ def setSharedLibrary(appName, libName):
         return
 
     depObject = getDeployObject(appName)
-    appDeploy = AdminConfig.showAttribute(deployment, 'deployedObject')
-    classLoad1 = AdminConfig.showAttribute(appDeploy, 'classloader')
+    classLoad1 = AdminConfig.showAttribute(depObject, 'classloader')
     print AdminConfig.create('LibraryRef', classLoad1, [['libraryName', libName]])
     AdminConfig.save()
 
