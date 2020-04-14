@@ -10,21 +10,23 @@ prop.load(FileInputStream(sys.argv[0] + '/config_app.properties'))
 
 warPath = sys.argv[1]
 cellName = prop.get('ws.cell.name')
-serverName = prop.get('ws.server.name')
-nodeName = prop.get('ws.node.name')
 cluster = prop.get('ws.cluster.name')
 contextPath = prop.get('ws.context.path')
 virtualHost = prop.get('ws.virtual.host')
 appName = prop.get('ws.app.name')
 classloaderMode = prop.get('ws.classloader.mode')
+classloaderPolicy = prop.get('ws.classloader.policy')
+sharedLib = prop.get('ws.shared.lib')
 
-print('serverName is %s' % (serverName))
-print('nodeName is %s' % (nodeName))
+print('configure:')
+print('-' * 75)
 print('cluster is %s' % (cluster))
 print('contextPath is %s' % (contextPath))
 print('virtualHost is %s' % (virtualHost))
 print('appName is %s' % (appName))
 print('warPath is %s' % (warPath))
+print('classloaderMode is %s' % (classloaderMode))
+print('classloaderPolicy is %s' % (classloaderPolicy))
 
 def checkWarExist(warPath):
     if not os.path.isfile(warPath) :
@@ -98,6 +100,17 @@ def waitExtractAppBinaryFile(appName):
     print("system extracts binary files success...")
     print AdminApp.getDeployStatus(appName)
 
+def setWarConfigure(appName, classloaderMode, classloaderPolicy, sharedLib):
+    if classloaderMode is not None:
+        app_util.setClassLoaderMode(appName, classloaderMode)
+
+    if classloaderPolicy is not None:
+        app_util.setClassLoaderPolicy(appName, classloaderPolicy)
+
+    if sharedLib is not None:
+        for libName in sharedLib.split('|'):
+            app_util.setSharedLibrary(appName, libName)
+
 def main():
     checkWarExist(warPath)
     checkAppExist(appName)
@@ -118,9 +131,7 @@ def main():
 
         updateApp(appName, warPath)
         waitExtractAppBinaryFile(appName)
-
-        if classloaderMode is not None:
-            app_util.setClassLoaderMode(appName, classloaderMode)
+        setWarConfigure(appName, classloaderMode, classloaderPolicy, sharedLib)
 
         for appInstance in appInstances:
             attrMap = app_util.getAppAttributes(appInstance)
@@ -133,8 +144,8 @@ def main():
     else:
         installApp(cluster, appName, contextPath, virtualHost, warPath)
         waitExtractAppBinaryFile(appName)
-        if classloaderMode is not None:
-            app_util.setClassLoaderMode(appName, classloaderMode)
+        setWarConfigure(appName, classloaderMode, classloaderPolicy)
+
         processes = app_util.getServersInCluster(cluster)
         print 'find processes in cluster%s: %s' % (cluster, processes)
         for process in processes:

@@ -89,6 +89,23 @@ def setClassLoaderPolicy(appName, policy):
     print 'change classloader policy success.'
     AdminConfig.show(depObject, 'warClassLoaderPolicy')
 
+def setSharedLibrary(appName, libName):
+    libs = AdminConfig.list('Library').split(lineSeparator)
+    isLibExist = 0
+    for lib in libs:
+        if lib.startswith(libName):
+            isLibExist = 1
+            break
+    if isLibExist == 0:
+        print 'Shared lib:%s not found.' % libName
+        return
+
+    depObject = getDeployObject(appName)
+    appDeploy = AdminConfig.showAttribute(deployment, 'deployedObject')
+    classLoad1 = AdminConfig.showAttribute(appDeploy, 'classloader')
+    print AdminConfig.create('LibraryRef', classLoad1, [['libraryName', libName]])
+    AdminConfig.save()
+
 def getAppInfo(appName):
     return AdminApp.view(appName)
 
