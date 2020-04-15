@@ -72,23 +72,6 @@ def getDeployObject(appName):
     dep = AdminConfig.getid('/Deployment:%s/' % appName)
     return AdminConfig.showAttribute(dep, 'deployedObject')
 
-# mode: PARENT_FIRST, PARENT_LAST
-def setClassLoaderMode(appName, mode):
-    depObject = getDeployObject(appName)
-    classldr = AdminConfig.showAttribute(depObject, 'classloader')
-    AdminConfig.modify(classldr, [['mode', mode]])
-    AdminConfig.save()
-    print 'change classloader mode success.'
-    print AdminConfig.showall(classldr)
-
-# policy: SINGLE, MULTIPLE
-def setClassLoaderPolicy(appName, policy):
-    depObject = getDeployObject(appName)
-    AdminConfig.modify(depObject, [['warClassLoaderPolicy', policy]])
-    AdminConfig.save()
-    print 'change classloader policy success.'
-    AdminConfig.show(depObject, 'warClassLoaderPolicy')
-
 def setSharedLibrary(appName, libName):
     libs = AdminConfig.list('Library').split(lineSeparator)
     isLibExist = 0
@@ -108,3 +91,32 @@ def setSharedLibrary(appName, libName):
 def getAppInfo(appName):
     return AdminApp.view(appName)
 
+# mode: PARENT_FIRST, PARENT_LAST
+def setClassLoaderMode(appName, mode):
+    depObject = getDeployObject(appName)
+    classldr = AdminConfig.showAttribute(depObject, 'classloader')
+    AdminConfig.modify(classldr, [['mode', mode]])
+    AdminConfig.save()
+    print 'Change classloader mode success.'
+    print AdminConfig.showall(classldr)
+
+# policy: SINGLE, MULTIPLE
+def setClassLoaderPolicy(appName, policy):
+    depObject = getDeployObject(appName)
+    AdminConfig.modify(depObject, [['warClassLoaderPolicy', policy]])
+    AdminConfig.save()
+    print 'Change classloader policy success.'
+    AdminConfig.show(depObject, 'warClassLoaderPolicy')
+
+# AdminConfig.show(depObject)
+# AdminApp.view('Application Name', '-CtxRootForWebMod')
+def setAdvanceModuleConfig(appName, advanceConfigMap = {}):
+    option = []
+    for avdConfName in advanceConfigMap.keys():
+        option.append([avdConfName, advanceConfigMap[avdConfName]])
+    print 'Set advance module config:%s' % str(option)
+    depObject = getDeployObject(appName)
+    AdminConfig.modify(depObject, option)
+    AdminConfig.save()
+    print 'Set advance module config success.'
+    AdminConfig.show(depObject)

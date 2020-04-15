@@ -6,7 +6,8 @@ from java.io import FileInputStream
 from java.util import Properties
 
 prop = Properties()
-prop.load(FileInputStream(sys.argv[0] + '/config_app.properties'))
+confPath = sys.argv[0] + '/config_app.properties'
+prop.load(FileInputStream(confPath))
 
 warPath = sys.argv[1]
 cellName = prop.get('ws.cell.name')
@@ -17,23 +18,13 @@ appName = prop.get('ws.app.name')
 classloaderMode = prop.get('ws.classloader.mode')
 classloaderPolicy = prop.get('ws.classloader.policy')
 sharedLib = prop.get('ws.shared.lib')
-filePermission = prop.get('ws.adv.file.permission')
-jspReloadTime = prop.get('ws.adv.jsp.reload.time')
-reloadInterval = prop.get('ws.adv.app.reload.interval')
+filePermission = prop.get('ws.adv.filePermission')
+jspReloadTime = prop.get('ws.adv.jspReloadTime')
+reloadInterval = prop.get('ws.adv.appReloadInterval')
 
 print('configure:')
 print('-' * 75)
-print('cluster is %s' % (cluster))
-print('contextPath is %s' % (contextPath))
-print('virtualHost is %s' % (virtualHost))
-print('appName is %s' % (appName))
-print('warPath is %s' % (warPath))
-print('sharedLib is %s' % (sharedLib or []))
-print('classloaderMode is %s' % (classloaderMode or 'default'))
-print('classloaderPolicy is %s' % (classloaderPolicy or 'default'))
-print('filePermission is %s' % (filePermission or 'default'))
-print('jspReloadTime is %s' % (jspReloadTime or 'default'))
-print('reloadInterval is %s' % (reloadInterval or 'default'))
+print open(confPath, 'r').read()
 
 appConfigOption = {
     'contextPath': contextPath,
@@ -111,7 +102,7 @@ def setAppConfigOption(appConfigOption, options = []):
         # Advance setting
         if filePermission is not None:
             options.append('-filepermission')
-            options.append([['.*', '.*', filePermission]])
+            options.append(filePermission)
 
         if jspReloadTime is not None:
             options.append('-JSPReloadForWebMod')
@@ -162,6 +153,17 @@ def setWarConfigure(appName, classloaderMode, classloaderPolicy, sharedLib):
     if classloaderPolicy is not None:
         app_util.setClassLoaderPolicy(appName, classloaderPolicy)
 
+def setAdvanceAppModuleConfig(appName, prop):
+    from java.util import HashMap
+
+    m = HashMap(prop)
+    configMap = {}
+    for key in m.keySet():
+        if(key.startswith('ws.adv.prop')):
+            configMap[str(key[12:])] = str(m[key])
+    if len(configMap.keys()) != 0:
+        app_util.setAdvanceModuleConfig(appName, configMap)
+
 def main():
     checkWarExist(warPath)
     checkAppExist(appName)
@@ -183,6 +185,7 @@ def main():
         updateApp(appName, warPath, appConfigOption)
         waitExtractAppBinaryFile(appName)
         setWarConfigure(appName, classloaderMode, classloaderPolicy, sharedLib)
+        setAdvanceAppModuleConfig(appName, prop)
 
         for appInstance in appInstances:
             attrMap = app_util.getAppAttributes(appInstance)
@@ -196,6 +199,7 @@ def main():
         installApp(cluster, appName, contextPath, appConfigOption)
         waitExtractAppBinaryFile(appName)
         setWarConfigure(appName, classloaderMode, classloaderPolicy, sharedLib)
+        setAdvanceAppModuleConfig(appName, prop)
 
         processes = app_util.getServersInCluster(cluster)
         print 'find processes in cluster%s: %s' % (cluster, processes)

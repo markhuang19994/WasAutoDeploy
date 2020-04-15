@@ -1,0 +1,42 @@
+project:
+  name: MY_PROJECT
+
+was:
+  app:
+    name: my_app_war
+    cell: myCell
+    cluster: MyCluster
+    contextPath: myCtpx
+    virtualHost: my_default_host
+    classloader:
+      mode: PARENT_FIRST
+      policy: MULTIPLE
+    sharedLib:
+      - CommonsCodec1.4_shared
+      - testPcl
+    advanced:
+      filePermision: '.*\.dll=755#.*\.so=755#.*\.a=755#.*\.sl=755'
+      jspReloadTime: 5
+      appReloadTime: 5
+      allowDispatchRemoteInclude: false
+      allowServiceRemoteInclude: false
+      asyncRequestDispatchType: DISABLED
+      autoLink: false
+      backgroundApplication: false
+      createMBeansForResources: true
+      deploymentId: 0
+      enableClientModule: false
+      enableDistribution: true
+      expandSynchronously: false
+      recycleOnUpdate: PARTIAL
+      reloadEnabled: false
+      reloadInterval: 3
+      standaloneModule: true
+      startOnDistribute: false
+      startingWeight: 1
+      useMetadataFromBinaries: false
+      zeroBinaryCopy: false
+      zeroEarCopy: false
+
+sql:
+  dir: ...
