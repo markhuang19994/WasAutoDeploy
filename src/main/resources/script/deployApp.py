@@ -17,6 +17,9 @@ appName = prop.get('ws.app.name')
 classloaderMode = prop.get('ws.classloader.mode')
 classloaderPolicy = prop.get('ws.classloader.policy')
 sharedLib = prop.get('ws.shared.lib')
+filePermission = prop.get('ws.adv.file.permission')
+jspReloadTime = prop.get('ws.adv.jsp.reload.time')
+reloadInterval = prop.get('ws.adv.app.reload.interval')
 
 print('configure:')
 print('-' * 75)
@@ -25,9 +28,21 @@ print('contextPath is %s' % (contextPath))
 print('virtualHost is %s' % (virtualHost))
 print('appName is %s' % (appName))
 print('warPath is %s' % (warPath))
-print('classloaderMode is %s' % (classloaderMode))
-print('classloaderPolicy is %s' % (classloaderPolicy))
-print('sharedLib is %s' % (sharedLib))
+print('sharedLib is %s' % (sharedLib or []))
+print('classloaderMode is %s' % (classloaderMode or 'default'))
+print('classloaderPolicy is %s' % (classloaderPolicy or 'default'))
+print('filePermission is %s' % (filePermission or 'default'))
+print('jspReloadTime is %s' % (jspReloadTime or 'default'))
+print('reloadInterval is %s' % (reloadInterval or 'default'))
+
+appConfigOption = {
+    'contextPath': contextPath,
+    'virtualHost': virtualHost,
+    'filePermission': filePermission,
+    'jspReloadTime': jspReloadTime,
+    'reloadInterval': reloadInterval,
+    'sharedLib': sharedLib
+}
 
 def checkWarExist(warPath):
     if not os.path.isfile(warPath) :
@@ -51,13 +66,21 @@ def stopApp(appManager, appName, process):
     AdminControl.invoke(appManager, 'stopApplication', appName)
     print 'Stop app %s/%s success.' % (process, appName)
 
-def updateApp(appName, warPath):
+def updateApp(appName, warPath, appConfigOption):
     print 'update app: %s...' % appName
-    AdminApp.update(appName, 'app', ['-operation', 'update', '-contents', warPath])
+    options = []
+    options.append('-operation')
+    options.append('update')
+
+    options.append('-contents')
+    options.append(warPath)
+
+    setAppConfigOption(appConfigOption, options)
+    AdminApp.update(appName, 'app', options)
     AdminConfig.save()
     print 'Update app %s success.' % (appName)
 
-def installApp(cluster, appName, contextPath, virtualHost, warPath):
+def installApp(cluster, appName, contextPath, appConfigOption):
     options = []
 
     options.append('-cluster')
@@ -66,16 +89,47 @@ def installApp(cluster, appName, contextPath, virtualHost, warPath):
     options.append('-appname')
     options.append(appName)
 
-    options.append('-contextroot')
-    options.append(contextPath)
-
-    options.append('-MapWebModToVH')
-    options.append([['.*', '.*', virtualHost]])
-
-    options.append('-usedefaultbindings')
+    setAppConfigOption(appConfigOption, options)
     AdminApp.install(warPath, options)
     AdminConfig.save()
     app_util.syncClusterNodes(cluster)
+
+def setAppConfigOption(appConfigOption, options = []):
+        contextPath = appConfigOption.get('contextPath')
+        virtualHost = appConfigOption.get('virtualHost')
+        filePermission = appConfigOption.get('filePermission')
+        jspReloadTime = appConfigOption.get('jspReloadTime')
+        reloadInterval = appConfigOption.get('reloadInterval')
+        sharedLib = appConfigOption.get('sharedLib')
+
+        options.append('-CtxRootForWebMod')
+        options.append([['.*', '.*', '/' + contextPath]])
+
+        options.append('-MapWebModToVH')
+        options.append([['.*', '.*', virtualHost]])
+
+        # Advance setting
+        if filePermission is not None:
+            options.append('-filepermission')
+            options.append([['.*', '.*', filePermission]])
+
+        if jspReloadTime is not None:
+            options.append('-JSPReloadForWebMod')
+            options.append([['.*', '.*', 'Yes', jspReloadTime]])
+
+        if reloadInterval is not None:
+            options.append('-reloadEnabled')
+            options.append('-reloadInterval')
+            options.append(reloadInterval)
+
+        if sharedLib is not None:
+            libNames = ''
+            for libName in sharedLib.split('|'):
+                libNames = libNames + libName + '+'
+            options.append('-MapSharedLibForMod')
+            options.append([[ appName, '.*', libNames[:-1] ]])
+
+        options.append('-usedefaultbindings')
 
 def startApp(appManager, appName, process):
     print 'Start app: %s/%s...' % (process, appName)
@@ -108,10 +162,6 @@ def setWarConfigure(appName, classloaderMode, classloaderPolicy, sharedLib):
     if classloaderPolicy is not None:
         app_util.setClassLoaderPolicy(appName, classloaderPolicy)
 
-    if sharedLib is not None:
-        for libName in sharedLib.split('|'):
-            app_util.setSharedLibrary(appName, libName)
-
 def main():
     checkWarExist(warPath)
     checkAppExist(appName)
@@ -130,7 +180,7 @@ def main():
             if isStop == 0:
                 stopApp(appManager, appName, process)
 
-        updateApp(appName, warPath)
+        updateApp(appName, warPath, appConfigOption)
         waitExtractAppBinaryFile(appName)
         setWarConfigure(appName, classloaderMode, classloaderPolicy, sharedLib)
 
@@ -143,7 +193,7 @@ def main():
                 continue
             startApp(appManager, appName, process)
     else:
-        installApp(cluster, appName, contextPath, virtualHost, warPath)
+        installApp(cluster, appName, contextPath, appConfigOption)
         waitExtractAppBinaryFile(appName)
         setWarConfigure(appName, classloaderMode, classloaderPolicy, sharedLib)
 
