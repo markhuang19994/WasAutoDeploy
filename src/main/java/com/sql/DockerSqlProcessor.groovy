@@ -1,5 +1,6 @@
 package com.sql
 
+
 import com.util.FileUtil
 
 import java.nio.file.Files
@@ -11,7 +12,7 @@ class DockerSqlProcessor {
                 host: 'sssrv01.iead.local',
                 port: '3433',
                 user: 'sa',
-                password: 'p@ssw0rdq',
+                password: 'p@ssw0rd',
                 database: 'XCOLA',
         )).executeSqlScripts([
                 '/home/markhuag/Downloads/DeployUAT20200320 (2).sql' as File,
@@ -29,6 +30,8 @@ class DockerSqlProcessor {
             if (p.exitValue() == 0) {
                 def images = p.text
                 this.hasSqlCmd = images.split('\r?\n').any { it == 'sqlcmd' }
+            } else {
+                println p.errorStream.text
             }
             this.sqlCmdConfig = sqlCmdConfig
         } catch (Exception e) {
