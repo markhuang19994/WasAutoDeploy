@@ -5,18 +5,24 @@ import java.sql.DatabaseMetaData
 import java.sql.ResultSet
 import java.util.regex.Pattern
 
-class ColaSqlProcessor {
+class DefaultSqlProcessor {
 
     static void main(String[] args) {
-        new ColaSqlProcessor().executeSql('/home/markhuag/Downloads/DeployUAT20200303 (4).sql' as File)
+        new DefaultSqlProcessor().executeSqlScript('/home/markhuag/Downloads/DeployUAT20200303 (4).sql' as File)
     }
 
-    void executeSql(File sqlFile) {
+    void executeSqlScripts(List<File> scriptFiles) {
+        for (scriptFile in scriptFiles) {
+            executeSqlScript(scriptFile)
+        }
+    }
+
+    void executeSqlScript(File scriptFile) {
         def conn = null
         try {
-            println 'Process: ' + sqlFile.name
+            println 'Process: ' + scriptFile.name
             println '=' * 60
-            def sqlScriptMap = categorySql(sqlFile.text)
+            def sqlScriptMap = categorySql(scriptFile.text)
             def sql = MssqlProvider.newMssqlInstance()
             conn = sql.connection
             processCreateTable(sqlScriptMap.createSqlList, conn)

@@ -1,18 +1,19 @@
 package com
 
-import com.parse.PropParser
-import com.parse.ws.SshUrl
-import com.parse.ws.TaskType
-import com.parse.ws.WsFileParser
-import com.parse.ws.WsFileInfo
 import com.app.ScpHelper
 import com.cmd.CommendRunner
 import com.cmd.CommendRunnerFactory
 import com.cmd.CommendSetting
-import com.cmd.condition.ConditionOutput
 import com.cmd.SshCommandRunner
+import com.cmd.condition.ConditionOutput
+import com.parse.PropParser
+import com.parse.ws.SshUrl
+import com.parse.ws.TaskType
+import com.parse.ws.WsFileParser
 import com.project.Project
-import com.sql.ColaSqlProcessor
+import com.sql.DefaultSqlProcessor
+import com.sql.DockerSqlProcessor
+import com.sql.SqlCmdConfig
 import com.util.FileUtil
 
 import java.nio.file.Paths
@@ -33,7 +34,7 @@ class Main {
     static CommendSetting cs = new CommendSetting()
 
     static void main(String[] args) {
-        cs.exitcodeHandler = {it == 0}
+        cs.exitcodeHandler = { it == 0 }
         init(args)
         execSqlScripts()
 
@@ -65,7 +66,7 @@ class Main {
             println '\nExecute sql scripts'
             println 'sql dir:' + project.sqlDir
             def dateFormat = new SimpleDateFormat('yyyyMMdd')
-            def sqlProcessor = new ColaSqlProcessor()
+
             def sqlScripts = new File(project.sqlDir)
                     .listFiles({ it.name.startsWith('DeployUAT') && it.name.endsWith('.sql') } as FileFilter)
                     ?.sort { f1, f2 ->
@@ -73,8 +74,26 @@ class Main {
                         Date d2 = dateFormat.parse(f2.name.replaceAll('DeployUAT(.*)\\.sql', '$1'))
                         Long.compare(d1.time, d2.time)
                     } ?: new File[0]
-            for (sqlScript in sqlScripts) {
-                sqlProcessor.executeSql(sqlScript)
+
+            def sqlScriptList = sqlScripts.toList()
+
+            def sqlCmdConfig = new SqlCmdConfig(
+                    host: 'sssrv01.iead.local',
+                    port: '3433',
+                    user: 'sa',
+                    password: 'p@ssw0rd',
+                    database: 'XCOLA'
+            )
+            def isDockerRunSqlScriptSuccess = false
+            def dockerSqlProcessor = new DockerSqlProcessor(sqlCmdConfig)
+            if (dockerSqlProcessor.hasSqlCmd) {
+                int exitCode = dockerSqlProcessor.executeSqlScripts(sqlScriptList)
+                isDockerRunSqlScriptSuccess = exitCode == 0
+            }
+
+            if (!isDockerRunSqlScriptSuccess) {
+                def sqlProcessor = new DefaultSqlProcessor()
+                sqlProcessor.executeSqlScripts(sqlScriptList)
             }
         }
     }
@@ -155,7 +174,7 @@ class Main {
                         "-user ${prop['wsadmin.user.name']} " +
                         "-password ${prop['wsadmin.user.pwd']} " +
                         "-f ${linuxScriptDirPath}/deployApp.py ${linuxConfigDirPath} ${linuxWarPath}"
-        , cs)
+                , cs)
 
         scr.runCommend("rm -rf ${linuxTempDirPath}", cs)
     }

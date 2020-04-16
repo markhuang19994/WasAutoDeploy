@@ -90,6 +90,12 @@ final class FileUtil {
         new File(resourcesDir, relativePath)
     }
 
+    static File generateTempDir() {
+        def tempDir = new File(TEMP_DIR, UUID.randomUUID().toString().replace('-', ''))
+        tempDir.mkdirs()
+        tempDir
+    }
+
     static File generateTempFile() {
         new File(TEMP_DIR, UUID.randomUUID().toString().replace('-', ''))
     }
