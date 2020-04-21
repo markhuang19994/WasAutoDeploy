@@ -53,23 +53,30 @@ class DockerSqlProcessor {
         try {
             def instructTxt = new File(tempDir, 'instruct.txt')
 
-            instructTxt.withWriter {
-                for (scriptFile in scriptFiles) {
-                    def tempScriptFile = copyFileToTmpDir(scriptFile, tempDir)
-                    def scriptBytes = Files.readAllBytes(tempScriptFile.toPath())
-                    def scriptStr = new String(scriptBytes, StandardCharsets.UTF_16BE)
-                    scriptStr = scriptStr.startsWith('\ufeff') ? scriptStr[1..-1] : scriptStr
+            def allScriptFile = new File(tempDir, 'all_script.sql')
 
-                    def transactionScript = "BEGIN TRANSACTION;\n${scriptStr}\nCOMMIT TRANSACTION;\nPRINT N'Transaction success';"
-                    tempScriptFile.withOutputStream {
-                        //BOM \ufffe is necessary for sqlcmd, if not insert BOM, sqlcmd will not execute script!
-                        it.write(new byte[]{0xFE, 0xFF})
-                        it.write(transactionScript.getBytes(StandardCharsets.UTF_16BE))
-                        it.flush()
-                    }
-                    it.write(tempScriptFile.name)
-                    it.write('\n')
-                }
+            def transactionTemplate = getTransactionTemplate()
+
+            def scriptBuffer = new StringBuilder()
+            for (scriptFile in scriptFiles) {
+                def scriptBytes = Files.readAllBytes(scriptFile.toPath())
+                def scriptStr = new String(scriptBytes, StandardCharsets.UTF_16BE)
+                scriptStr = scriptStr.startsWith('\ufeff') ? scriptStr[1..-1] : scriptStr
+                scriptBuffer.append(scriptStr).append('\n')
+            }
+
+            def scriptWithoutGo = removeScriptGoStatement(scriptBuffer.toString())
+            def transactionScript = transactionTemplate.replace('${sqlScript}', scriptWithoutGo)
+
+            allScriptFile.withOutputStream {
+                it.write(new byte[]{0xFE, 0xFF})
+                it.write(utf16Byte(transactionScript))
+                it.flush()
+            }
+
+            instructTxt.withWriter {
+                it.write(allScriptFile.name)
+                it.write('\n')
                 it.flush()
             }
 
@@ -110,20 +117,22 @@ class DockerSqlProcessor {
         }
     }
 
-    private static File copyFileToTmpDir(File f, File tmpDir) {
-        def cpf = new File(tmpDir, f.name)
-
-        def bytes = Files.readAllBytes(f.toPath())
-
-        cpf.withOutputStream {
-            it.write(bytes)
-            it.flush()
-        }
-        cpf
+    private static byte[] utf16Byte(String s) {
+        s.getBytes(StandardCharsets.UTF_16BE)
     }
 
     private static String getDockerTempPath(String dirName) {
         "//c/windows/temp/${dirName}"
+    }
+
+    private static getTransactionTemplate() {
+        getClass().getResource('/template/tsql_template.sql').newInputStream().text
+    }
+
+    private static String removeScriptGoStatement(String script) {
+        script.split('\r?\n').findAll {
+            !it.trim().matches('^(?i)go$')
+        }.join('\r\n')
     }
 
 }
