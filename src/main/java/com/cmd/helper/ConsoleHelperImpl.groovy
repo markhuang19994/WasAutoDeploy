@@ -99,18 +99,24 @@ class ConsoleHelperImpl implements ConsoleHelper {
         int temp
         writeOutput(outputWriter, lines, conditionOutputList)
 
-        println '\n\033[32mSuccessConsole:\033[0m\n'
+        boolean title = false
         while ((temp = reader.read()) != -1) {
-            if ((char) temp == '\n') {
+            def c = (char) temp
+            lines[idx] = lines[idx] ?: ''
+            lines[idx] = lines[idx] + String.valueOf(c)
+            if (c == '\n') {
                 idx++
             }
-            lines[idx] = lines[idx] + String.valueOf((char) temp)
-            writeOutput(outputWriter, lines, conditionOutputList)
             if (printLog) {
-                print((char) temp)
+                if (!title) {
+                    println '\n\033[32mSuccessConsole:\033[0m\n'
+                    title = true
+                }
+                print(c)
             }
+            writeOutput(outputWriter, lines, conditionOutputList)
         }
-        return lines.join(System.lineSeparator())
+        return lines.join('')
     }
 
     private String readSuccessConsoleAndWriteOutput(Reader reader, Writer outputWriter
@@ -119,13 +125,17 @@ class ConsoleHelperImpl implements ConsoleHelper {
         String thisLine
         writeOutput(outputWriter, lines, conditionOutputList)
 
-        println '\n\033[32mSuccessConsole:\033[0m'
+        boolean title = false
         while ((thisLine = reader.readLine()) != null) {
             lines << thisLine
-            writeOutput(outputWriter, lines, conditionOutputList)
             if (printLog) {
+                if (!title) {
+                    println '\n\033[32mSuccessConsole:\033[0m\n'
+                    title = true
+                }
                 println thisLine
             }
+            writeOutput(outputWriter, lines, conditionOutputList)
         }
         return lines.join(System.lineSeparator())
     }
@@ -134,10 +144,14 @@ class ConsoleHelperImpl implements ConsoleHelper {
         List<String> lines = []
         String thisLine
 
-        println '\n\033[31mErrorConsole:\033[0m'
+        boolean title = false
         while ((thisLine = reader.readLine()) != null) {
             lines << thisLine
             if (printLog) {
+                if (!title) {
+                    println '\n\033[31mErrorConsole:\033[0m'
+                    title = true
+                }
                 println thisLine
             }
         }
