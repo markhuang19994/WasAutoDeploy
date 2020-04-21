@@ -1,5 +1,5 @@
 package com.app
-import com.cmd.ShellCommendRunner
+import com.cmd.ShellCommandRunner
 
 /**
  * @author MarkHuang* @version
@@ -16,7 +16,7 @@ class WsAdmin {
     def pwd
 
     WsAdmin(String wsAdminDir,String hostName,String userName,String pwd) {
-        this.cmdRunner = new ShellCommendRunner(new File(wsAdminDir + File.separator + 'bin'))
+        this.cmdRunner = new ShellCommandRunner(new File(wsAdminDir + File.separator + 'bin'))
         this.hostName = hostName
         this.userName = userName
         this.pwd = pwd
@@ -29,7 +29,7 @@ class WsAdmin {
     boolean checkIsAppStart(appName) {
         def cmd = "print AdminControl.completeObjectName('type=Application,name=${appName},*')"
         cmd = getWsAdminCmd(cmd)
-        def scr = new ShellCommendRunner()
+        def scr = new ShellCommandRunner()
 
         def result = scr.runCommend(cmd)
         return true

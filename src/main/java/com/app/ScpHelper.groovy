@@ -1,7 +1,7 @@
 package com.app
 
 import com.parse.ws.SshUrl
-import com.cmd.CommendSetting
+import com.cmd.CommandSetting
 import com.cmd.SshCommandRunner
 
 /**
@@ -14,13 +14,13 @@ import com.cmd.SshCommandRunner
 class ScpHelper {
 
     SshCommandRunner scr
-    CommendSetting cs
+    CommandSetting cs
     SshUrl sshUrl
 
     ScpHelper(SshCommandRunner scr, SshUrl sshUrl) {
         this.scr = scr
         this.sshUrl = sshUrl
-        this.cs = new CommendSetting()
+        this.cs = new CommandSetting()
         cs.exitcodeHandler = { it == 0 }
     }
 

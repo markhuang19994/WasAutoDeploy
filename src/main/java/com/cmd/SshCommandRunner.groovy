@@ -1,7 +1,6 @@
 package com.cmd
 
-import com.cmd.CommendRunner
-import com.cmd.ProcessResult
+
 import com.parse.ws.SshUrl
 import com.util.FileUtil
 
@@ -14,14 +13,14 @@ import com.util.FileUtil
  */
 class SshCommandRunner {
     SshUrl sshUrl
-    CommendRunner commandRunner
+    CommandRunner commandRunner
 
-    SshCommandRunner(CommendRunner commandRunner, SshUrl sshUrl) {
+    SshCommandRunner(CommandRunner commandRunner, SshUrl sshUrl) {
         this.sshUrl = sshUrl
         this.commandRunner = commandRunner
     }
 
-    ProcessResult runCommend(String beforeCmd, String cmd, CommendSetting commendSetting) {
+    ProcessResult runCommend(String beforeCmd, String cmd, CommandSetting commendSetting) {
         File tempSh = FileUtil.generateTempFile()
         if (beforeCmd) {
             tempSh << beforeCmd
@@ -34,7 +33,7 @@ class SshCommandRunner {
         result
     }
 
-    ProcessResult runCommend(String cmd, CommendSetting commendSetting) {
+    ProcessResult runCommend(String cmd, CommandSetting commendSetting) {
         runCommend(null, cmd, commendSetting)
     }
 

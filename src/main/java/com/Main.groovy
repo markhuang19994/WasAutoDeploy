@@ -1,9 +1,9 @@
 package com
 
 import com.app.ScpHelper
-import com.cmd.CommendRunner
-import com.cmd.CommendRunnerFactory
-import com.cmd.CommendSetting
+import com.cmd.CommandRunner
+import com.cmd.CommandRunnerFactory
+import com.cmd.CommandSetting
 import com.cmd.SshCommandRunner
 import com.cmd.condition.ConditionOutput
 import com.parse.PropParser
@@ -31,7 +31,7 @@ class Main {
     static def prop
     static MainArgs mainArgs
     static Project project
-    static CommendSetting cs = new CommendSetting()
+    static CommandSetting cs = new CommandSetting()
 
     static void main(String[] args) {
         cs.exitcodeHandler = { it == 0 }
@@ -100,7 +100,7 @@ class Main {
 
     static execWsFile() {
         List<String> extraPath = (prop['cmd.extra.path'] as String)?.split(',')?.toList() ?: []
-        def cr = CommendRunnerFactory.getCommendRunner(null, extraPath, null, null)
+        def cr = CommandRunnerFactory.getCommendRunner(null, extraPath, null, null)
 
         def execWsFiles = (project.wsFiles ?: '').toString().split('\\|')
         if (execWsFiles.size() == 0) return
@@ -156,7 +156,7 @@ class Main {
         def deployScript = FileUtil.getResource('/script/deployApp.py')
         def utilScript = FileUtil.getResource('/script/application_util.py')
         def extraPath = (prop['cmd.extra.path'] as String)?.split(',')?.toList() ?: []
-        def cr = CommendRunnerFactory.getCommendRunner(null, extraPath, null, null)
+        def cr = CommandRunnerFactory.getCommendRunner(null, extraPath, null, null)
 
         def sshUrl = SshUrl.valueOf(prop['ssh.url'] as String)
         def scr = new SshCommandRunner(cr, sshUrl)
@@ -179,7 +179,7 @@ class Main {
         scr.runCommend("rm -rf ${linuxTempDirPath}", cs)
     }
 
-    static genSshKey(CommendRunner cr) {
+    static genSshKey(CommandRunner cr) {
         //cat C:/Windows/system32/config/systemprofile/.ssh/id_rsa.pub | ssh root@192.168.36.91 "cat >> ~/.ssh/authorized_keys"
         //git bash ssh-copy-id root@192.168.36.92
         //echo StrictHostKeyChecking no > C:/Windows/system32/config/systemprofile/.ssh/config
@@ -192,7 +192,7 @@ class Main {
             if (consoleLines.size() < 1) return false
             return consoleLines[consoleLines.size() - 1].contains('Overwrite (y/n)')
         })
-        cr.runCommend('ssh-keygen', new CommendSetting(conditionOutputList: [co, co2]))
+        cr.runCommend('ssh-keygen', new CommandSetting(conditionOutputList: [co, co2]))
     }
 
 }
