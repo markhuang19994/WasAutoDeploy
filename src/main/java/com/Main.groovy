@@ -67,7 +67,7 @@ class Main {
             println 'sql dir:' + project.sqlDir
             def dateFormat = new SimpleDateFormat('yyyyMMdd')
 
-            def sqlScripts = new File(project.sqlDir)
+            def scriptFiles = new File(project.sqlDir)
                     .listFiles({ it.name.startsWith('DeployUAT') && it.name.endsWith('.sql') } as FileFilter)
                     ?.sort { f1, f2 ->
                         Date d1 = dateFormat.parse(f1.name.replaceAll('DeployUAT(.*)\\.sql', '$1'))
@@ -75,7 +75,11 @@ class Main {
                         Long.compare(d1.time, d2.time)
                     } ?: new File[0]
 
-            def sqlScriptList = sqlScripts.toList()
+            def scriptFileList = scriptFiles.toList()
+            println "scriptFiles: ${scriptFileList}"
+            if (scriptFileList.size() == 0) {
+                println 'Sql script file not found, skip...'
+            }
 
             def sqlCmdConfig = new SqlCmdConfig(
                     host: 'sssrv01.iead.local',
@@ -87,13 +91,13 @@ class Main {
             def isDockerRunSqlScriptSuccess = false
             def dockerSqlProcessor = new DockerSqlProcessor(sqlCmdConfig)
             if (dockerSqlProcessor.hasSqlCmd) {
-                int exitCode = dockerSqlProcessor.executeSqlScripts(sqlScriptList)
+                int exitCode = dockerSqlProcessor.executeSqlScripts(scriptFileList)
                 isDockerRunSqlScriptSuccess = exitCode == 0
             }
 
             if (!isDockerRunSqlScriptSuccess) {
                 def sqlProcessor = new DefaultSqlProcessor()
-                sqlProcessor.executeSqlScripts(sqlScriptList)
+                sqlProcessor.executeSqlScripts(scriptFileList)
             }
         }
     }
