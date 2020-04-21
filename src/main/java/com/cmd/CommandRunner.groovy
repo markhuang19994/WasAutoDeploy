@@ -24,7 +24,7 @@ abstract class CommandRunner {
     ProcessResult run(String commend, ProcessBuilder pb, File execFile, CommandSetting commendSetting) {
         println "Run command:\033[33m${commend}\033[0m"
         Process process = pb.start()
-        String[] console = consoleHelper.processConsole(process, commendSetting.conditionOutputList)
+        String[] console = consoleHelper.processConsole(process, commendSetting.conditionOutputList, commendSetting.consoleEncoding)
 
         int exitCode = process.waitFor()
         println "\033[34mExit code:$exitCode\n\033[0m"

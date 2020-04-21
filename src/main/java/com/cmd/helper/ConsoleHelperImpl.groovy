@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit
  * </ul>
  * @since 10/9/19
  */
-class ConsoleHelperImpl implements ConsoleHelper{
+class ConsoleHelperImpl implements ConsoleHelper {
     static final CONSOLE_ENCODING = System.properties['file.encoding'] as String ?: 'utf-8'
     private def printLog = true
 
@@ -26,7 +26,7 @@ class ConsoleHelperImpl implements ConsoleHelper{
         return t
     })
 
-    String[] processConsole(Process process, List<ConditionOutput> conditionOutputList) {
+    String[] processConsole(Process process, List<ConditionOutput> conditionOutputList, String consoleEncoding = null) {
         CountDownLatch cdl = new CountDownLatch(2)
         Future<String> successFuture = executorService.submit({
             String result = ''
@@ -34,7 +34,7 @@ class ConsoleHelperImpl implements ConsoleHelper{
             Writer outputWriter
             try {
                 successReader = new BufferedReader(
-                        new InputStreamReader(process.getInputStream(), CONSOLE_ENCODING))
+                        new InputStreamReader(process.getInputStream(), consoleEncoding ?: CONSOLE_ENCODING))
                 outputWriter =
                         new BufferedWriter(new OutputStreamWriter(process.getOutputStream()))
                 result = readSuccessConsoleWithoutLineSpAndWriteOutput(successReader, outputWriter, conditionOutputList)
@@ -57,7 +57,7 @@ class ConsoleHelperImpl implements ConsoleHelper{
             String result = ''
             Reader errorReader
             try {
-                errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream(), CONSOLE_ENCODING))
+                errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream(), consoleEncoding ?: CONSOLE_ENCODING))
                 result = readErrorConsole(errorReader)
                 errorReader.close()
             } catch (Exception e) {
@@ -95,22 +95,19 @@ class ConsoleHelperImpl implements ConsoleHelper{
     private String readSuccessConsoleWithoutLineSpAndWriteOutput(
             Reader reader, Writer outputWriter, List<ConditionOutput> conditionOutputList) {
         List<String> lines = []
-        boolean firstPrint = true
         int idx = 0
         int temp
         writeOutput(outputWriter, lines, conditionOutputList)
+
+        println '\n\033[32mSuccessConsole:\033[0m\n'
         while ((temp = reader.read()) != -1) {
-            if ((char) temp == '\n'){
+            if ((char) temp == '\n') {
                 idx++
             }
-            lines[idx] += String.valueOf((char) temp)
+            lines[idx] = lines[idx] + String.valueOf((char) temp)
             writeOutput(outputWriter, lines, conditionOutputList)
             if (printLog) {
-                if (firstPrint) {
-                    println '\n\033[32mSuccessConsole:\033[0m\n'
-                    firstPrint = false
-                }
-                print ((char) temp)
+                print((char) temp)
             }
         }
         return lines.join(System.lineSeparator())
@@ -119,17 +116,14 @@ class ConsoleHelperImpl implements ConsoleHelper{
     private String readSuccessConsoleAndWriteOutput(Reader reader, Writer outputWriter
                                                     , List<ConditionOutput> conditionOutputList) {
         List<String> lines = []
-        boolean firstPrint = true
         String thisLine
         writeOutput(outputWriter, lines, conditionOutputList)
+
+        println '\n\033[32mSuccessConsole:\033[0m'
         while ((thisLine = reader.readLine()) != null) {
             lines << thisLine
             writeOutput(outputWriter, lines, conditionOutputList)
             if (printLog) {
-                if (firstPrint) {
-                    println '\n\033[32mSuccessConsole:\033[0m'
-                    firstPrint = false
-                }
                 println thisLine
             }
         }
@@ -138,15 +132,12 @@ class ConsoleHelperImpl implements ConsoleHelper{
 
     private String readErrorConsole(Reader reader) {
         List<String> lines = []
-        boolean firstPrint = true
         String thisLine
+
+        println '\n\033[31mErrorConsole:\033[0m'
         while ((thisLine = reader.readLine()) != null) {
             lines << thisLine
             if (printLog) {
-                if (firstPrint) {
-                    println '\n\033[31mErrorConsole:\033[0m'
-                    firstPrint = false
-                }
                 println thisLine
             }
         }

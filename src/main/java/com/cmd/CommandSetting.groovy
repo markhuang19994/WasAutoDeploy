@@ -18,4 +18,5 @@ class CommandSetting {
     Map env = [:]
     List<ConditionOutput> conditionOutputList = []
     Closure exitcodeHandler = { exitcode -> return true }
+    String consoleEncoding = 'utf-8'
 }

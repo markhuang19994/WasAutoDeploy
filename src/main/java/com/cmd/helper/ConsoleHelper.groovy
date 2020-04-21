@@ -10,5 +10,5 @@ import com.cmd.condition.ConditionOutput
  * @since 10/9/19
  */
 interface ConsoleHelper {
-    String[] processConsole(Process process, List<ConditionOutput> conditionOutputList)
+    String[] processConsole(Process process, List<ConditionOutput> conditionOutputList, String consoleEncoding)
 }
