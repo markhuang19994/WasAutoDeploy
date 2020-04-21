@@ -6,7 +6,7 @@ END TRY
 
 BEGIN CATCH
     ROLLBACK TRANSACTION;
-    PRINT 'Errors occurred, rolling back changes.';
+    PRINT N'Errors occurred, rolling back changes.';
 
     DECLARE @ErrorMessage As VARCHAR(1000) = CHAR(10) + N'code:' + CAST(ERROR_NUMBER() AS VARCHAR)
         + CHAR(10) + N'message:' + ERROR_MESSAGE()

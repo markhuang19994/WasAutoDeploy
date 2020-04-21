@@ -8,56 +8,65 @@ import java.util.regex.Pattern
 class DefaultSqlProcessor {
 
     static void main(String[] args) {
-        new DefaultSqlProcessor().executeSqlScript('/home/markhuag/Downloads/DeployUAT20200303 (4).sql' as File)
+        new DefaultSqlProcessor().executeSqlScript('/home/mark/IdeaProjects/source/citi/pcl_linux/src/DeploySQL/DeployUAT20200306.sql' as File)
     }
 
     void executeSqlScripts(List<File> scriptFiles) {
         for (scriptFile in scriptFiles) {
-            executeSqlScript(scriptFile)
+            def exitCode = executeSqlScript(scriptFile)
+            if (exitCode == 1)
+                throw new RuntimeException('Execute sql script fail.')
         }
     }
 
-    void executeSqlScript(File scriptFile) {
+    int executeSqlScript(File scriptFile) {
         def conn = null
+        def exitCode = 0;
         try {
             println 'Process: ' + scriptFile.name
             println '=' * 60
             def sqlScriptMap = categorySql(scriptFile.text)
             def sql = MssqlProvider.newMssqlInstance()
             conn = sql.connection
+
+            conn.setAutoCommit(false)
             processCreateTable(sqlScriptMap.createSqlList, conn)
             println ''
             processUpdateSql(sqlScriptMap.updateSqlList, conn)
+            conn.commit()
+            println 'Transaction success.'
         } catch (Exception e) {
             e.printStackTrace()
+            if (conn != null) {
+                conn.rollback()
+                println 'Errors occurred, rolling back changes.'
+            }
+            exitCode = 1
         } finally {
             if (conn != null) {
                 conn.close()
             }
         }
+        return exitCode
     }
 
     private void processUpdateSql(List<SqlExec> updateSqlList, Connection conn) {
         println "[Update table]"
         def currentTableName = null
         for (updateSql in updateSqlList) {
-            try {
-                if (currentTableName == null || currentTableName != updateSql.tableName) {
-                    currentTableName = updateSql.tableName
-                }
-                println 'table:' + currentTableName
-                println 'date:' + updateSql.date
-
-                def sqlStr = updateSql.sqlStr
-                println 'script:\n' + abbreviateSqlScript(sqlStr)
-
-                def stmt = conn.createStatement()
-                def ddlImpact = stmt.executeUpdate(sqlStr)
-                conn.commit()
-                println ddlImpact + ' rows affected.\n'
-            } catch (Exception e) {
-                e.printStackTrace()
+            if (currentTableName == null || currentTableName != updateSql.tableName) {
+                currentTableName = updateSql.tableName
             }
+            println 'table:' + currentTableName
+            println 'date:' + updateSql.date
+
+            def sqlStr = updateSql.sqlStr
+            println 'script:\n' + abbreviateSqlScript(sqlStr)
+
+            def stmt = conn.createStatement()
+            def ddlImpact = stmt.executeUpdate(sqlStr)
+            conn.commit()
+            println ddlImpact + ' rows affected.\n'
         }
     }
 
@@ -67,22 +76,18 @@ class DefaultSqlProcessor {
         }
 
         for (createSql in createSqlList) {
-            try {
-                DatabaseMetaData meta = conn.getMetaData()
-                ResultSet res = meta.getTables(null, null, createSql.tableName, "TABLE")
+            DatabaseMetaData meta = conn.getMetaData()
+            ResultSet res = meta.getTables(null, null, createSql.tableName, "TABLE")
 
-                if (res.next()) {
-                    println "table:${createSql.tableName} is exist, skip create script..."
-                } else {
-                    def sqlStr = createSql.sqlStr
-                    println 'script:\n' + abbreviateSqlScript(sqlStr)
-                    def stmt = conn.createStatement()
-                    stmt.execute(sqlStr)
-                    conn.commit()
-                    println "create table:${createSql.tableName} success."
-                }
-            } catch (Exception e) {
-                e.printStackTrace()
+            if (res.next()) {
+                println "table:${createSql.tableName} is exist, skip create script..."
+            } else {
+                def sqlStr = createSql.sqlStr
+                println 'script:\n' + abbreviateSqlScript(sqlStr)
+                def stmt = conn.createStatement()
+                stmt.execute(sqlStr)
+                conn.commit()
+                println "create table:${createSql.tableName} success."
             }
         }
     }
