@@ -96,7 +96,7 @@ class DockerSqlProcessor {
         } catch (Exception e) {
             e.printStackTrace()
         } finally {
-//            FileUtil.deleteDirectory(tempDir)
+            FileUtil.deleteDirectory(tempDir)
         }
         return 1;
     }

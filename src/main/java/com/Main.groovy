@@ -88,14 +88,13 @@ class Main {
                     password: 'p@ssw0rd',
                     database: 'XCOLA'
             )
-            def isDockerRunSqlScriptSuccess = false
+
             def dockerSqlProcessor = new DockerSqlProcessor(sqlCmdConfig)
             if (dockerSqlProcessor.hasSqlCmd) {
                 int exitCode = dockerSqlProcessor.executeSqlScripts(scriptFileList)
-                isDockerRunSqlScriptSuccess = exitCode == 0
-            }
-
-            if (!isDockerRunSqlScriptSuccess) {
+                if (exitCode == 1)
+                    throw new RuntimeException('Execute sql script fail.')
+            } else {
                 def sqlProcessor = new DefaultSqlProcessor()
                 sqlProcessor.executeSqlScripts(scriptFileList)
             }
