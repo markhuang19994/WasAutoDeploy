@@ -1,0 +1,3 @@
+
+vim /tmp/test_sql.sql
+rm -rf /tmp/err && rm -rf /tmp/su && eval "/opt/mssql-tools/bin/sqlcmd -S cola_mssql,1433 -U sa -P p@ssw0rd -d XCOLA -i '/tmp/test_sql.sql' -r0 2>/tmp/err 1>tmp/su" && sleep 0.5 && cat /tmp/su /tmp/err
