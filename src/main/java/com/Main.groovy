@@ -79,6 +79,7 @@ class Main {
             println "scriptFiles: ${scriptFileList}"
             if (scriptFileList.size() == 0) {
                 println 'Sql script file not found, skip...'
+                return
             }
 
             def sqlCmdConfig = new SqlCmdConfig(
