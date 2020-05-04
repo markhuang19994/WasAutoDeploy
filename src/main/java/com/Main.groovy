@@ -127,26 +127,31 @@ class Main {
         }
 
         for (wsFileInfo in wsFileInfos) {
-            println "Exec:$wsFileInfo.name"
+            try {
+                println "Exec:$wsFileInfo.name"
 
-            def sshUrl = wsFileInfo.sshUrl
-            def sshCmdRunner = new SshCommandRunner(cr, sshUrl)
-            def scpH = new ScpHelper(sshCmdRunner, sshUrl)
+                def sshUrl = wsFileInfo.sshUrl
+                def sshCmdRunner = new SshCommandRunner(cr, sshUrl)
+                def scpH = new ScpHelper(sshCmdRunner, sshUrl)
 
-            for (task in wsFileInfo.tasks) {
-                if (task.type == TaskType.SSH_RUN) {
-                    sshCmdRunner.runCommend(task.content, cs)
-                } else if (task.type == TaskType.RUN) {
-                    cr.runCommend(task.content, cs)
-                } else if (task.type == TaskType.SCP) {
-                    def attrs = WsFileParser.parseScp(task.content)
-                    scpH.cpWithAutoCreateDir(
-                            attrs['target'], attrs['dest'], attrs['user'], attrs['owner'], attrs['permission'])
-                } else if (task.type == TaskType.USER) {
-                    sshUrl.user = task.content
+                for (task in wsFileInfo.tasks) {
+                    if (task.type == TaskType.SSH_RUN) {
+                        sshCmdRunner.runCommend(task.content, cs)
+                    } else if (task.type == TaskType.RUN) {
+                        cr.runCommend(task.content, cs)
+                    } else if (task.type == TaskType.SCP) {
+                        def attrs = WsFileParser.parseScp(task.content)
+                        scpH.cpWithAutoCreateDir(
+                                attrs['target'], attrs['dest'], attrs['user'], attrs['owner'], attrs['permission'])
+                    } else if (task.type == TaskType.USER) {
+                        sshUrl.user = task.content
+                    }
                 }
+                println "$wsFileInfo.name running success.\n"
+            } catch (Exception e) {
+                e.printStackTrace()
+                println "$wsFileInfo.name running fail.\n"
             }
-            println "$wsFileInfo.name running success.\n"
         }
     }
 
