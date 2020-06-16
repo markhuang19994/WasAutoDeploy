@@ -100,6 +100,21 @@ def setClassLoaderMode(appName, mode):
     print 'Change classloader mode success.'
     print AdminConfig.showall(classldr)
 
+# mode: PARENT_FIRST, PARENT_LAST
+def setModuleClassLoaderMode(appName, mode):
+    depObject = getDeployObject(appName)
+    myModules = AdminConfig.showAttribute(depObject, 'modules')
+    myModules = myModules[1:len(myModules)-1].split(" ")
+
+    log = []
+    for module in myModules:
+        if (module.find('WebModuleDeployment')!= -1):
+            AdminConfig.modify(module, [['classloaderMode', mode]])
+            AdminConfig.save()
+            log.append(AdminConfig.showall(module))
+    print 'Change module classloader mode success.'
+    print log
+
 # policy: SINGLE, MULTIPLE
 def setClassLoaderPolicy(appName, policy):
     depObject = getDeployObject(appName)

@@ -16,6 +16,7 @@ contextPath = prop.get('ws.context.path')
 virtualHost = prop.get('ws.virtual.host')
 appName = prop.get('ws.app.name')
 classloaderMode = prop.get('ws.classloader.mode')
+moduleClassloaderMode = prop.get('ws.module.classloader.mode')
 classloaderPolicy = prop.get('ws.classloader.policy')
 sharedLib = prop.get('ws.shared.lib')
 filePermission = prop.get('ws.adv.filePermission')
@@ -141,14 +142,19 @@ def waitExtractAppBinaryFile(appName):
        time.sleep(5)
        result = AdminApp.isAppReady(appName)
        count = count + 1
-       if count >= 60:
-        raise Exception('wait system extracts all application binary files timeout, appName:%s' % appName)
+       if count >= 120:
+        print('wait system extracts all application binary files timeout, appName:%s' % appName)
+        return
+        # raise Exception('wait system extracts all application binary files timeout, appName:%s' % appName)
     print("system extracts binary files success...")
     print AdminApp.getDeployStatus(appName)
 
-def setWarConfigure(appName, classloaderMode, classloaderPolicy, sharedLib):
+def setWarConfigure(appName, classloaderMode, moduleClassloaderMode, classloaderPolicy, sharedLib):
     if classloaderMode is not None:
         app_util.setClassLoaderMode(appName, classloaderMode)
+
+    if moduleClassloaderMode is not None:
+        app_util.setModuleClassLoaderMode(appName, moduleClassloaderMode)
 
     if classloaderPolicy is not None:
         app_util.setClassLoaderPolicy(appName, classloaderPolicy)
@@ -166,7 +172,6 @@ def setAdvanceAppModuleConfig(appName, prop):
 
 def main():
     checkWarExist(warPath)
-    checkAppExist(appName)
 
     if checkAppExist(appName):
         appInstances = app_util.findAppsByNameFromCell(cellName, appName)
@@ -184,7 +189,7 @@ def main():
 
         updateApp(appName, warPath, appConfigOption)
         waitExtractAppBinaryFile(appName)
-        setWarConfigure(appName, classloaderMode, classloaderPolicy, sharedLib)
+        setWarConfigure(appName, classloaderMode, moduleClassloaderMode, classloaderPolicy, sharedLib)
         setAdvanceAppModuleConfig(appName, prop)
 
         for appInstance in appInstances:
@@ -198,7 +203,7 @@ def main():
     else:
         installApp(cluster, appName, contextPath, appConfigOption)
         waitExtractAppBinaryFile(appName)
-        setWarConfigure(appName, classloaderMode, classloaderPolicy, sharedLib)
+        setWarConfigure(appName, classloaderMode, moduleClassloaderMode, classloaderPolicy, sharedLib)
         setAdvanceAppModuleConfig(appName, prop)
 
         processes = app_util.getServersInCluster(cluster)
