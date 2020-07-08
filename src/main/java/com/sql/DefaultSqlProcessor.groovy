@@ -111,7 +111,7 @@ class DefaultSqlProcessor {
             if (it.matches(pattern)) {
                 def m = Pattern.compile(pattern).matcher(it)
                 if (m.find()) {
-                    return new SqlExec(tableName: m.group(1), date: '', sqlStr: m.group(2).replaceAll('GO\r?\n', ''))
+                    return new SqlExec(tableName: m.group(1), date: '', sqlStr: m.group(2).replaceAll('^(?i)go( --go)?\r?\n', ''))
                 }
             }
             return null
@@ -121,7 +121,7 @@ class DefaultSqlProcessor {
     private List<SqlExec> categoryUpdateSql(String sql) {
         def tableNamePattern = '^--(.*)\\.sql$'
         def datePattern = '^--\\{} (\\d{4},\\d{2},\\d{2})$'
-        sql.split('GO\r?\n').collect {
+        sql.split('^(?i)go( --go)?\r?\n').collect {
             it.split('\r?\n')
         }.collect {
             def tableName = ''
@@ -154,7 +154,7 @@ class DefaultSqlProcessor {
     }
 
     private sqlStrListToString(List<String> sqlStrList) {
-        return sqlStrList.join('\r\n').replaceAll('GO\r?\n', '')
+        return sqlStrList.join('\r\n').replaceAll('^(?i)go( --go)?\r?\n', '')
     }
 
     private String abbreviateSqlScript(String sqlStr, int len = 300) {

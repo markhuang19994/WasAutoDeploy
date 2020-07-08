@@ -90,12 +90,15 @@ class Main {
                     database: 'XCOLA'
             )
 
+            def isSqlExecOk = false
+
             def dockerSqlProcessor = new DockerSqlProcessor(sqlCmdConfig)
             if (dockerSqlProcessor.hasSqlCmd) {
                 int exitCode = dockerSqlProcessor.executeSqlScripts(scriptFileList)
-                if (exitCode == 1)
-                    throw new RuntimeException('Execute sql script fail.')
-            } else {
+                isSqlExecOk = exitCode == 0
+            }
+
+            if (!isSqlExecOk) {
                 def sqlProcessor = new DefaultSqlProcessor()
                 sqlProcessor.executeSqlScripts(scriptFileList)
             }

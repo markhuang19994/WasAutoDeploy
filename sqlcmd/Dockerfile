@@ -1,4 +1,4 @@
-From ubuntu:bionic
+FROM ubuntu:bionic
 
 RUN apt-get update && apt-get install -y gnupg2 && apt-get install -y curl
 

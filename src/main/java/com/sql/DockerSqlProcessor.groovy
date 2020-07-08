@@ -50,6 +50,7 @@ class DockerSqlProcessor {
 
         def tempDir = FileUtil.generateTempDir()
 
+        int exitCode = 1;
         try {
             def instructTxt = new File(tempDir, 'instruct.txt')
 
@@ -92,13 +93,15 @@ class DockerSqlProcessor {
             ]
 
             def processResult = runDockerCmd(dockerCmd)
-            return processResult.exitCode == 0 ? 0 : 1
+            exitCode = processResult.exitCode == 0 ? 0 : 1
         } catch (Exception e) {
             e.printStackTrace()
         } finally {
-            FileUtil.deleteDirectory(tempDir)
+            if (exitCode == 0) {
+                FileUtil.deleteDirectory(tempDir)
+            }
         }
-        return 1;
+        exitCode
     }
 
     private static runDockerCmd(List<String> dockerCmd) {
@@ -131,7 +134,7 @@ class DockerSqlProcessor {
 
     private static String removeScriptGoStatement(String script) {
         script.split('\r?\n').findAll {
-            !it.trim().matches('^(?i)go$')
+            !it.trim().matches('^(?i)go( --go)?$')
         }.join('\r\n')
     }
 
