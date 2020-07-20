@@ -133,9 +133,9 @@ class DockerSqlProcessor {
     }
 
     private static String removeScriptGoStatement(String script) {
-        script.split('\r?\n').findAll {
+        script.split('\n').findAll {
             !it.trim().matches('^(?i)go( --go)?$')
-        }.join('\r\n')
+        }.join('\n')
     }
 
 }
