@@ -8,7 +8,7 @@ import java.util.regex.Pattern
 class DefaultSqlProcessor {
 
     static void main(String[] args) {
-        new DefaultSqlProcessor().executeSqlScript('/home/mark/IdeaProjects/source/citi/pcl_linux/src/DeploySQL/DeployUAT20200306.sql' as File)
+        new DefaultSqlProcessor().executeSqlScript('/home/mark/Downloads/DeployUAT20200813.sql' as File)
     }
 
     void executeSqlScripts(List<File> scriptFiles) {
@@ -111,7 +111,10 @@ class DefaultSqlProcessor {
             if (it.matches(pattern)) {
                 def m = Pattern.compile(pattern).matcher(it)
                 if (m.find()) {
-                    return new SqlExec(tableName: m.group(1), date: '', sqlStr: m.group(2).replaceAll('^(?i)go( --go)?\r?\n', ''))
+                    def trimGo = m.group(2).split('\n').findAll {
+                        !it.trim().matches('^(?i)go( --go)?$')
+                    }.join('\n')
+                    return new SqlExec(tableName: m.group(1), date: '', sqlStr: trimGo)
                 }
             }
             return null
@@ -154,7 +157,9 @@ class DefaultSqlProcessor {
     }
 
     private sqlStrListToString(List<String> sqlStrList) {
-        return sqlStrList.join('\r\n').replaceAll('^(?i)go( --go)?\r?\n', '')
+        return sqlStrList.findAll {
+            !it.trim().matches('^(?i)go( --go)?$')
+        }.join('\r\n')
     }
 
     private String abbreviateSqlScript(String sqlStr, int len = 300) {
