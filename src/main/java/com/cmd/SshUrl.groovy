@@ -1,4 +1,4 @@
-package com.parse.ws
+package com.cmd
 
 /**
  * @author MarkHuang*

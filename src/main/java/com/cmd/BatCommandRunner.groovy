@@ -3,7 +3,7 @@ package com.cmd
 
 import com.cmd.helper.ConsoleHelper
 
-class BatCommandRunner extends CommandRunner {
+class BatCommandRunner extends AbstractCommandRunner {
 
     File runCommendDirectory
     String defaultPATH

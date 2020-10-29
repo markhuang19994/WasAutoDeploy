@@ -7,7 +7,7 @@ import com.cmd.CommandSetting
 import com.cmd.SshCommandRunner
 import com.cmd.condition.ConditionOutput
 import com.parse.PropParser
-import com.parse.ws.SshUrl
+import com.cmd.SshUrl
 import com.parse.ws.TaskType
 import com.parse.ws.WsFileParser
 import com.project.Project
@@ -107,7 +107,7 @@ class Main {
 
     static execWsFile() {
         List<String> extraPath = (prop['cmd.extra.path'] as String)?.split(',')?.toList() ?: []
-        def cr = CommandRunnerFactory.getCommendRunner(null, extraPath, null, null)
+        def cr = CommandRunnerFactory.getCommandRunner(null, extraPath, null, null)
 
         def execWsFiles = (project.wsFiles ?: '').toString().split('\\|')
         if (execWsFiles.size() == 0) return
@@ -168,7 +168,7 @@ class Main {
         def deployScript = FileUtil.getResource('/script/deployApp.py')
         def utilScript = FileUtil.getResource('/script/application_util.py')
         def extraPath = (prop['cmd.extra.path'] as String)?.split(',')?.toList() ?: []
-        def cr = CommandRunnerFactory.getCommendRunner(null, extraPath, null, null)
+        def cr = CommandRunnerFactory.getCommandRunner(null, extraPath, null, null)
 
         def sshUrl = SshUrl.valueOf(prop['ssh.url'] as String)
         def scr = new SshCommandRunner(cr, sshUrl)

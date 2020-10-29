@@ -4,7 +4,7 @@ package com.cmd
 import com.cmd.helper.ConsoleHelper
 import com.util.FileUtil
 
-class ShellCommandRunner extends CommandRunner {
+class ShellCommandRunner extends AbstractCommandRunner {
 
     private File runCommendDirectory
     private String defaultPATH

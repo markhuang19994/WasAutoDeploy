@@ -1,7 +1,6 @@
 package com.cmd
 
 
-import com.parse.ws.SshUrl
 import com.util.FileUtil
 
 /**
@@ -11,7 +10,7 @@ import com.util.FileUtil
  * </ul>
  * @since 1/8/20
  */
-class SshCommandRunner {
+class SshCommandRunner implements CommandRunner {
     SshUrl sshUrl
     CommandRunner commandRunner
 
@@ -20,21 +19,14 @@ class SshCommandRunner {
         this.commandRunner = commandRunner
     }
 
-    ProcessResult runCommend(String beforeCmd, String cmd, CommandSetting commendSetting) {
+    ProcessResult runCommend(String cmd, CommandSetting commendSetting) {
         File tempSh = FileUtil.generateTempFile()
-        if (beforeCmd) {
-            tempSh << beforeCmd
-        }
         tempSh << cmd
         println "cmd:${cmd}"
 
         def result = commandRunner.runCommend("cat ${tempSh.absolutePath} | ssh ${sshUrl.fullUrl()} -p $sshUrl.port 'bash -'", commendSetting)
         tempSh.delete()
         result
-    }
-
-    ProcessResult runCommend(String cmd, CommandSetting commendSetting) {
-        runCommend(null, cmd, commendSetting)
     }
 
 }

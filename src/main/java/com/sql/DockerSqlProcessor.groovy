@@ -105,7 +105,7 @@ class DockerSqlProcessor {
     }
 
     private static runDockerCmd(List<String> dockerCmd) {
-        def cr = CommandRunnerFactory.getCommendRunner(null)
+        def cr = CommandRunnerFactory.getCommandRunner(null)
 
 
         if (cr instanceof BatCommandRunner) {

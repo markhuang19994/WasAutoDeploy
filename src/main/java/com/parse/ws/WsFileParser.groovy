@@ -1,5 +1,6 @@
 package com.parse.ws
 
+import com.cmd.SshUrl
 import com.parse.PropParser
 
 import java.util.regex.Pattern
